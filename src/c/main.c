@@ -14,10 +14,25 @@ static Layer *s_draw_layer;
 static void update_time() {
     time_t temp = time(NULL);
     struct tm *tick_time = localtime(&temp);
-    static char s_buffer[8];
-    strftime(s_buffer, sizeof(s_buffer), clock_is_24h_style() ?
-                                            "%H:%M" : "%I:%M", tick_time);
-    text_layer_set_text(s_time_layer, s_buffer);
+    static char s_time[8];
+    strftime(s_time, sizeof(s_time), (clock_is_24h_style() ? "%k:%M" : "%l:%M"), tick_time);
+    text_layer_set_text(s_time_layer, s_time);
+
+    static char s_day[3];
+    strftime(s_day, sizeof(s_day), "%d", tick_time);
+    text_layer_set_text(s_date_layer_1, s_day);
+
+    static char s_mon[5];
+    strftime(s_mon, sizeof(s_mon), "%b", tick_time);
+    text_layer_set_text(s_date_layer_2, s_mon);
+
+    static char s_dow[5];
+    strftime(s_dow, sizeof(s_dow), "%a", tick_time);
+    text_layer_set_text(s_date_layer_3, s_dow);
+
+    static char s_year[5];
+    strftime(s_year, sizeof(s_year), "%Y", tick_time);
+    text_layer_set_text(s_date_layer_4, s_year);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -47,6 +62,7 @@ static void main_window_load(Window *window) {
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorWhite);
     text_layer_set_font(s_time_layer, s_time_font);
+    text_layer_set_text(s_time_layer, "00:00");
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
 
@@ -55,7 +71,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text_color(s_date_layer_1, GColorWhite);
     text_layer_set_font(s_date_layer_1, fonts_get_system_font(FONT_KEY_GOTHIC_09));
     text_layer_set_text_alignment(s_date_layer_1, GTextAlignmentRight);
-    text_layer_set_text(s_date_layer_1, "23");
+    text_layer_set_text(s_date_layer_1, "01");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_1));
 
     s_date_layer_2 = text_layer_create(GRect(20, 60, 20, 10));
@@ -63,7 +79,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text_color(s_date_layer_2, GColorWhite);
     text_layer_set_font(s_date_layer_2, fonts_get_system_font(FONT_KEY_GOTHIC_09));
     text_layer_set_text_alignment(s_date_layer_2, GTextAlignmentRight);
-    text_layer_set_text(s_date_layer_2, "Oct");
+    text_layer_set_text(s_date_layer_2, "Jan");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_2));
 
     s_date_layer_3 = text_layer_create(GRect(105, 50, 20, 10));
@@ -71,7 +87,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text_color(s_date_layer_3, GColorWhite);
     text_layer_set_font(s_date_layer_3, fonts_get_system_font(FONT_KEY_GOTHIC_09));
     text_layer_set_text_alignment(s_date_layer_3, GTextAlignmentLeft);
-    text_layer_set_text(s_date_layer_3, "Thu");
+    text_layer_set_text(s_date_layer_3, "Mon");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_3));
 
     s_date_layer_4 = text_layer_create(GRect(105, 60, 20, 10));
@@ -79,7 +95,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text_color(s_date_layer_4, GColorWhite);
     text_layer_set_font(s_date_layer_4, fonts_get_system_font(FONT_KEY_GOTHIC_09));
     text_layer_set_text_alignment(s_date_layer_4, GTextAlignmentLeft);
-    text_layer_set_text(s_date_layer_4, "2025");
+    text_layer_set_text(s_date_layer_4, "1970");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_4));
 
     s_draw_layer = layer_create(bounds);
