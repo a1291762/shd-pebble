@@ -1,0 +1,43 @@
+{
+  "name": "shd",
+  "author": "Lincoln Ramsay",
+  "version": "1.0.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "SHD",
+    "uuid": "1809CE3E-FB86-4EDC-B99F-A7B2F84EE648",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "diorite"
+    ],
+    "watchapp": {
+      "watchface": true
+    },
+    "messageKeys": [
+      "dummy"
+    ],
+    "resources": {
+      "media": [
+        {
+          "type": "font",
+          "name": "FONT_ALARM_CLOCK_40",
+          "file": "fonts/alarm clock.ttf",
+          "compatibility": "2.7"
+        },
+        {
+          "type": "bitmap",
+          "name": "IMAGE_FILLED",
+          "file": "images/filled_60.png"
+        },
+        {
+          "type": "bitmap",
+          "name": "IMAGE_HOLLOW",
+          "file": "images/hollow_60.png"
+        }
+      ]
+    }
+  }
+}
