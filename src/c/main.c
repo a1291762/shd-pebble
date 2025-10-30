@@ -81,9 +81,9 @@ static GRect _rect(int x1, int y1, int x2, int y2) {
 
 static GRect setArcRect(float topleft) {
     int x = topleft;
-    int y = x;
+    int y = topleft + (mCenterY - mCenterX);
     int w = px(400) - topleft - x;
-    int h = px(400) - topleft - x;
+    int h = w; //px(400) - topleft - y;
     return GRect(x, y, w, h);
 }
 
@@ -228,14 +228,14 @@ static void main_window_load(Window *window) {
     GRect bounds = layer_get_bounds(window_layer);
 
     mCenterX = bounds.size.w / 2.0f;
-    mCenterY = bounds.size.w / 2.0f; // FIXME h > w but other parts of the code assume they are the same!
+    mCenterY = bounds.size.h / 2.0f;
     APP_LOG(APP_LOG_LEVEL_DEBUG, "center is %d %d", (int)mCenterX, (int)mCenterY);
     // mLastX = bounds.size.w - 1;
     mScale = (bounds.size.w / 400.0f); // 1.0 on TicWatch E, 0.9 on TicWatch E3
     APP_LOG(APP_LOG_LEVEL_DEBUG, "mScale %d.%03d", (int)mScale, (int)(mScale*1000)%1000);
 
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
-    s_background_layer = bitmap_layer_create(GRect(mCenterX - px(60), px(55), px(120), px(120)));
+    s_background_layer = bitmap_layer_create(GRect(mCenterX - px(60), mCenterY - px(145), px(120), px(120)));
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
@@ -248,7 +248,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
 
-    s_date_layer_1 = text_layer_create(GRect(mCenterX - px(95) - px(25), px(90), px(55), px(30)));
+    s_date_layer_1 = text_layer_create(GRect(mCenterX - px(95) - px(25), mCenterY - px(110), px(55), px(30)));
     // s_date_layer_1 = text_layer_create(GRect(mCenterX - px(95), mCenterY - px(80), 20, 10));
     text_layer_set_background_color(s_date_layer_1, GColorClear);
     text_layer_set_text_color(s_date_layer_1, GColorWhite);
@@ -257,7 +257,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text(s_date_layer_1, "01");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_1));
 
-    s_date_layer_2 = text_layer_create(GRect(mCenterX - px(95) - px(25), px(110), px(55), px(30)));
+    s_date_layer_2 = text_layer_create(GRect(mCenterX - px(95) - px(25), mCenterY - px(90), px(55), px(30)));
     text_layer_set_background_color(s_date_layer_2, GColorClear);
     text_layer_set_text_color(s_date_layer_2, GColorWhite);
     text_layer_set_font(s_date_layer_2, fonts_get_system_font(FONT_KEY_GOTHIC_09));
@@ -265,7 +265,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text(s_date_layer_2, "Jan");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_2));
 
-    s_date_layer_3 = text_layer_create(GRect(mCenterX + px(95) - px(25), px(90), px(55), px(30)));
+    s_date_layer_3 = text_layer_create(GRect(mCenterX + px(95) - px(25), mCenterY - px(110), px(55), px(30)));
     text_layer_set_background_color(s_date_layer_3, GColorClear);
     text_layer_set_text_color(s_date_layer_3, GColorWhite);
     text_layer_set_font(s_date_layer_3, fonts_get_system_font(FONT_KEY_GOTHIC_09));
@@ -273,7 +273,7 @@ static void main_window_load(Window *window) {
     text_layer_set_text(s_date_layer_3, "Mon");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_3));
 
-    s_date_layer_4 = text_layer_create(GRect(mCenterX + px(95) - px(25), px(110), px(55), px(30)));
+    s_date_layer_4 = text_layer_create(GRect(mCenterX + px(95) - px(25), mCenterY - px(90), px(55), px(30)));
     text_layer_set_background_color(s_date_layer_4, GColorClear);
     text_layer_set_text_color(s_date_layer_4, GColorWhite);
     text_layer_set_font(s_date_layer_4, fonts_get_system_font(FONT_KEY_GOTHIC_09));
