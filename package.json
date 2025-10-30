@@ -23,7 +23,7 @@
       "media": [
         {
           "type": "font",
-          "name": "FONT_ALARM_CLOCK_40",
+          "name": "FONT_ALARM_CLOCK_35",
           "file": "fonts/alarm clock.ttf",
           "compatibility": "2.7"
         },
