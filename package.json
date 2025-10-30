@@ -29,13 +29,8 @@
         },
         {
           "type": "bitmap",
-          "name": "IMAGE_FILLED",
-          "file": "images/filled_60.png"
-        },
-        {
-          "type": "bitmap",
           "name": "IMAGE_HOLLOW",
-          "file": "images/hollow_60.png"
+          "file": "images/hollow_43.png"
         }
       ]
     }

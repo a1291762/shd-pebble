@@ -71,6 +71,14 @@ static float px(float px) {
     return px * mScale;
 }
 
+static GRect rect(int x1, int y1, int x2, int y2) {
+    int x = x1;
+    int y = y1;
+    int w = x2 - x1;
+    int h = y2 - y1;
+    return GRect(x, y, w, h);
+}
+
 static GRect setArcRect(float topleft) {
     int x = topleft;
     int y = x;
@@ -227,7 +235,7 @@ static void main_window_load(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "mScale %d.%03d", (int)mScale, (int)(mScale*1000)%1000);
 
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
-    s_background_layer = bitmap_layer_create(GRect(0, 30, bounds.size.w, 60));
+    s_background_layer = bitmap_layer_create(rect(mCenterX - px(60), px(55), mCenterX + px(60), px(55) + px(120)));
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
