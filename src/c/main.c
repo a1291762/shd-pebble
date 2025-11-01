@@ -13,6 +13,8 @@ static TextLayer *s_battery_layer;
 static Layer *s_draw_layer;
 static float mCenterX;
 static float mCenterY;
+static int mOffsetX;
+static int mOffsetY;
 // static float mLastX;
 static float mScale;
 static bool pulsing = false;
@@ -85,10 +87,11 @@ static float px(float px) {
 }
 
 static GRect setArcRect(float topleft) {
-    int x = topleft;
-    int y = topleft + (mCenterY - mCenterX);
+    int x = mCenterX + mOffsetX - px(200) + topleft;
+    int y = mCenterY + mOffsetY - px(200) + topleft;
     int w = px(400) - topleft - x;
-    int h = w; //px(400) - topleft - y;
+    int h = px(400) - topleft - y;
+    // APP_LOG(APP_LOG_LEVEL_DEBUG, "setArcRect %d.%03d -> %d, %d, %d, %d", (int)topleft, (int)(topleft * 1000)%1000, x, y, w, h);
     return GRect(x, y, w, h);
 }
 
@@ -138,8 +141,8 @@ static void drawComplexBackground(GContext *ctx) {
     int ticks = 60;
     graphics_context_set_stroke_color(ctx, GColorWhite);
     graphics_context_set_stroke_width(ctx, 1); //px(2)
-    float outerTickRadius = mCenterX - px(5);
-    float innerTickRadius = mCenterX - px(15);
+    float outerTickRadius = mCenterX + px(15) - px(5);
+    float innerTickRadius = mCenterX + px(15) - px(15);
     float one = CIRCLE / (float)ticks;
 
     for (int tickIndex = 0; tickIndex < ticks; tickIndex++) {
@@ -453,7 +456,7 @@ void drawOverlapping(GContext *ctx) {
 }
 
 static void layer_update_proc(Layer *layer, GContext *ctx) {
-    graphics_context_set_antialiased(ctx, true);
+    // graphics_context_set_antialiased(ctx, true);
     // graphics_context_set_stroke_color(ctx, GColorClear);
     // graphics_context_set_stroke_width(ctx, 1);
 
@@ -490,16 +493,19 @@ static void main_window_load(Window *window) {
     mCenterY = bounds.size.h / 2.0f;
     APP_LOG(APP_LOG_LEVEL_DEBUG, "center is %d %d", (int)mCenterX, (int)mCenterY);
     // mLastX = bounds.size.w - 1;
-    mScale = (bounds.size.w / 400.0f); // 1.0 on TicWatch E, 0.9 on TicWatch E3
+    mScale = 0.4f; //(bounds.size.h / 400.0f); // 1.0 on TicWatch E, 0.9 on TicWatch E3
     APP_LOG(APP_LOG_LEVEL_DEBUG, "mScale %d.%03d", (int)mScale, (int)(mScale*1000)%1000);
+    // why???
+    mOffsetX = -8;
+    mOffsetY = 0;
 
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
     s_background_layer = bitmap_layer_create(GRect(mCenterX - px(60), mCenterY - px(145), px(120), px(120)));
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
-    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_35));
-    s_time_layer = text_layer_create(GRect(0, mCenterY - px(55), bounds.size.w, px(139)));
+    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_40));
+    s_time_layer = text_layer_create(GRect(mCenterX - px(195), mCenterY - px(55), px(400), px(139)));
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorWhite);
     text_layer_set_font(s_time_layer, s_time_font);
@@ -507,42 +513,42 @@ static void main_window_load(Window *window) {
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
 
-    s_date_layer_1 = text_layer_create(GRect(mCenterX - px(95) - px(25), mCenterY - px(110), px(55), px(30)));
+    s_date_layer_1 = text_layer_create(GRect(mCenterX - px(95) - px(25), mCenterY - px(110), px(55), px(40)));
     text_layer_set_background_color(s_date_layer_1, GColorClear);
     text_layer_set_text_color(s_date_layer_1, GColorWhite);
-    text_layer_set_font(s_date_layer_1, fonts_get_system_font(FONT_KEY_GOTHIC_09));
+    text_layer_set_font(s_date_layer_1, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_text_alignment(s_date_layer_1, GTextAlignmentRight);
     text_layer_set_text(s_date_layer_1, "01");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_1));
 
-    s_date_layer_2 = text_layer_create(GRect(mCenterX - px(95) - px(25), mCenterY - px(90), px(55), px(30)));
+    s_date_layer_2 = text_layer_create(GRect(mCenterX - px(95) - px(25), mCenterY - px(80), px(55), px(40)));
     text_layer_set_background_color(s_date_layer_2, GColorClear);
     text_layer_set_text_color(s_date_layer_2, GColorWhite);
-    text_layer_set_font(s_date_layer_2, fonts_get_system_font(FONT_KEY_GOTHIC_09));
+    text_layer_set_font(s_date_layer_2, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_text_alignment(s_date_layer_2, GTextAlignmentRight);
     text_layer_set_text(s_date_layer_2, "Jan");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_2));
 
-    s_date_layer_3 = text_layer_create(GRect(mCenterX + px(95) - px(25), mCenterY - px(110), px(55), px(30)));
+    s_date_layer_3 = text_layer_create(GRect(mCenterX + px(95) - px(25), mCenterY - px(110), px(55), px(40)));
     text_layer_set_background_color(s_date_layer_3, GColorClear);
     text_layer_set_text_color(s_date_layer_3, GColorWhite);
-    text_layer_set_font(s_date_layer_3, fonts_get_system_font(FONT_KEY_GOTHIC_09));
+    text_layer_set_font(s_date_layer_3, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_text_alignment(s_date_layer_3, GTextAlignmentLeft);
     text_layer_set_text(s_date_layer_3, "Mon");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_3));
 
-    s_date_layer_4 = text_layer_create(GRect(mCenterX + px(95) - px(25), mCenterY - px(90), px(55), px(30)));
+    s_date_layer_4 = text_layer_create(GRect(mCenterX + px(95) - px(35), mCenterY - px(80), px(75), px(40)));
     text_layer_set_background_color(s_date_layer_4, GColorClear);
     text_layer_set_text_color(s_date_layer_4, GColorWhite);
-    text_layer_set_font(s_date_layer_4, fonts_get_system_font(FONT_KEY_GOTHIC_09));
+    text_layer_set_font(s_date_layer_4, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_text_alignment(s_date_layer_4, GTextAlignmentLeft);
     text_layer_set_text(s_date_layer_4, "1970");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_4));
 
-    s_battery_layer = text_layer_create(GRect(mCenterX - px(40), mCenterY - px(200), px(90), px(30)));
+    s_battery_layer = text_layer_create(GRect(mCenterX - px(40), mCenterY - px(210), px(90), px(40)));
     text_layer_set_background_color(s_battery_layer, GColorClear);
     text_layer_set_text_color(s_battery_layer, GColorWhite);
-    text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_09));
+    text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
     text_layer_set_text(s_battery_layer, "100%");
     layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
