@@ -6,6 +6,8 @@
 struct Settings settings;
 static settings_changed_cb settings_changed;
 
+#define ENUM_HELPER(x) case x: return #x;
+
 static void reset_settings() {
     settings.DisplaySeconds = true;
     settings.DisplayBattery = true;
@@ -13,17 +15,22 @@ static void reset_settings() {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received handler");
+
     Tuple *tuple;
     if ((tuple = dict_find(iter, MESSAGE_KEY_DisplaySeconds))) {
         settings.DisplaySeconds = tuple->value->int32 == 1;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "display seconds %d", settings.DisplaySeconds);
     }
 
     if ((tuple = dict_find(iter, MESSAGE_KEY_DisplayBattery))) {
         settings.DisplayBattery = tuple->value->int32 == 1;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "display battery %d", settings.DisplayBattery);
     }
 
     if ((tuple = dict_find(iter, MESSAGE_KEY_DisplayHealth))) {
         settings.DisplayHealth = tuple->value->int32 == 1;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "display health %d", settings.DisplayHealth);
     }
 
     // save to config
@@ -36,6 +43,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 }
 
 void settings_init(settings_changed_cb callback) {
+    settings_deinit();
+
     settings_changed = callback;
 
     // load from config
@@ -45,6 +54,9 @@ void settings_init(settings_changed_cb callback) {
         reset_settings();
         persist_delete(SETTINGS_KEY);
     }
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "display seconds %d", settings.DisplaySeconds);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "display battery %d", settings.DisplayBattery);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "display health %d", settings.DisplayHealth);
 
     app_message_register_inbox_received(inbox_received_handler);
 

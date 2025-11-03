@@ -25,6 +25,8 @@ void hours_update() {
         hours_reset();
     } else {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "hours persistent cache present");
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "hours_counted %d", hours_data.hours_counted);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "hours_active %d", hours_data.hours_active);
     }
 
     // for every hour from midnight to the start of the current hour, calculate if enough steps were done

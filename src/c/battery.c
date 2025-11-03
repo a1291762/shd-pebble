@@ -6,14 +6,13 @@ int mBattery = -1;
 char batteryChar[5];
 static battery_changed_cb battery_changed;
 
-static void handle_battery(BatteryChargeState charge_state) {
+static void battery_handler(BatteryChargeState charge_state) {
     mBattery = charge_state.charge_percent;
     APP_LOG(APP_LOG_LEVEL_DEBUG, "mBattery %d", mBattery);
+    if (mBattery < 0) mBattery = 0;
+    else if (mBattery > 100) mBattery = 100;
 
-    batteryChar[0] = mBattery == 100 ? '1' : ' ';
-    batteryChar[1] = mBattery >= 10 ? (char)(((mBattery % 100) / 10) + (int)'0') : ' ';
-    batteryChar[2] = (char)((mBattery % 10) + (int)'0');
-    //batteryChar[3] = '%';
+    snprintf(batteryChar, sizeof(batteryChar), "%d", mBattery);
 
     if (battery_changed) {
         battery_changed();
@@ -21,15 +20,19 @@ static void handle_battery(BatteryChargeState charge_state) {
 }
 
 void battery_init(battery_changed_cb callback) {
+    battery_deinit();
+
     battery_changed = callback;
 
-    battery_state_service_unsubscribe();
     mBattery = -1;
     batteryChar[0] = '\0';
+
     if (settings.DisplayBattery) {
-        battery_state_service_subscribe(handle_battery);
-        handle_battery(battery_state_service_peek());
+        battery_state_service_subscribe(battery_handler);
+        // probe for initial battery state
+        battery_handler(battery_state_service_peek());
     }
+
     if (battery_changed) {
         battery_changed();
     }
