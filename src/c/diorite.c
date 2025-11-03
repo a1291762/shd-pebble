@@ -423,12 +423,14 @@ static void layer_update_proc(Layer *layer, GContext *ctx) {
     }
 }
 
-static void time_changed() {
-    text_layer_set_text(s_time_layer, s_time);
-    text_layer_set_text(s_date_layer_1, s_day);
-    text_layer_set_text(s_date_layer_2, s_mon);
-    text_layer_set_text(s_date_layer_3, s_dow);
-    text_layer_set_text(s_date_layer_4, s_year);
+static void time_changed(bool updateall) {
+    if (updateall) {
+        text_layer_set_text(s_time_layer, s_time);
+        text_layer_set_text(s_date_layer_1, s_day);
+        text_layer_set_text(s_date_layer_2, s_mon);
+        text_layer_set_text(s_date_layer_3, s_dow);
+        text_layer_set_text(s_date_layer_4, s_year);
+    }
     layer_mark_dirty(s_draw_layer);
 }
 

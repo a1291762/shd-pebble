@@ -1,7 +1,7 @@
 SHD watch face ported from Android to Pebble
 
-aplite (Pebble Classic) - too few pixels
+aplite (Pebble Classic) - few pixels
 basalt (Pebble Time) - ?
-chalk (Pebble Time Round) - fits best (was designed for a round watch)
-diorite (Pebble 2) - matches my Asterix (Pebble 2 Duo)
-emery (Pebble Time 2) - more pixels and colour
+chalk (Pebble Time Round) - looks good and has colour
+diorite (Pebble 2) - small, rect, b+w - matches my asterix (Pebble 2 Duo)
+emery (Pebble Time 2) - larger, rect, colour - matches the upcoming Pebble 2 Time

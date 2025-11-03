@@ -14,7 +14,8 @@ static void update_time(bool force) {
     time_t temp = time(NULL);
     now = temp * 1000;
 
-    if (force || temp % 60 == 0) {
+    bool updateall = (force || temp % 60 == 0);
+    if (updateall) {
         // once per minute is fine!
         struct tm *tick_time = localtime(&temp);
         strftime(s_time, sizeof(s_time), (clock_is_24h_style() ? "%k:%M" : "%l:%M"), tick_time);
@@ -26,7 +27,7 @@ static void update_time(bool force) {
     }
 
     if (time_changed) {
-        time_changed();
+        time_changed(updateall);
     }
 }
 
