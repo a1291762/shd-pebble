@@ -2,3 +2,4 @@ build
 .DS_Store
 .lock*
 .vscode
+node_modules
