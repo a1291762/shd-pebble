@@ -13,7 +13,7 @@ static void handle_battery(BatteryChargeState charge_state) {
     batteryChar[0] = mBattery == 100 ? '1' : ' ';
     batteryChar[1] = mBattery >= 10 ? (char)(((mBattery % 100) / 10) + (int)'0') : ' ';
     batteryChar[2] = (char)((mBattery % 10) + (int)'0');
-    batteryChar[3] = '%';
+    //batteryChar[3] = '%';
 
     if (battery_changed) {
         battery_changed();

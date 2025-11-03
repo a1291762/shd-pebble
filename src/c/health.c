@@ -4,7 +4,7 @@
 #include "hours.h"
 
 int mSteps;
-char stepsChar[9];
+char stepsChar[12];
 int mHours;
 char hoursChar[9];
 int mMinutes;
@@ -35,7 +35,18 @@ static void health_handler(HealthEventType event, void *context) {
         time_t start_of_day = time_start_of_today();
 
         mSteps = health_service_sum_today(HealthMetricStepCount);
-        snprintf(stepsChar, sizeof(stepsChar), "%d", mSteps);
+        stepsChar[0] = '\0';
+        int index = 0;
+        if (mSteps > 1000000) {
+            const char *fmt = "%3d,";
+            index += snprintf(stepsChar, sizeof(stepsChar), fmt, mSteps / 1000000);
+        }
+        if (mSteps > 1000) {
+            const char *fmt = (mSteps > 1000000) ? "%03d," : "%3d,";
+            index += snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, mSteps / 1000);
+        }
+        const char *fmt = (mSteps > 1000) ? "%03d," : "%3d,";
+        snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, mSteps % 1000);
 
         hours_update();
         mHours = hours_data.hours_active;

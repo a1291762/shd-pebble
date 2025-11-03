@@ -1,11 +1,11 @@
 #pragma once
 
 extern int mSteps;
-extern char stepsChar[9];
+extern char stepsChar[];
 extern int mHours;
-extern char hoursChar[9];
+extern char hoursChar[];
 extern int mMinutes;
-extern char minutesChar[9];
+extern char minutesChar[];
 
 typedef void (*health_changed_cb)();
 void health_init(health_changed_cb callback);

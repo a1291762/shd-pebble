@@ -1,11 +1,11 @@
 #pragma once
 
 extern unsigned long now;
-extern char s_time[8];
-extern char s_day[3];
-extern char s_mon[5];
-extern char s_dow[5];
-extern char s_year[5];
+extern char s_time[];
+extern char s_day[];
+extern char s_mon[];
+extern char s_dow[];
+extern char s_year[];
 
 typedef void (*time_changed_cb)();
 

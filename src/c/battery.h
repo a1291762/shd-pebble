@@ -1,7 +1,7 @@
 #pragma once
 
 extern int mBattery;
-extern char batteryChar[5];
+extern char batteryChar[];
 
 typedef void (*battery_changed_cb)();
 
