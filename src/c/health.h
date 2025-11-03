@@ -1,10 +1,10 @@
 #pragma once
 
-extern int mSteps;
+extern float mSteps;
 extern char stepsChar[];
-extern int mHours;
+extern float mHours;
 extern char hoursChar[];
-extern int mMinutes;
+extern float mMinutes;
 extern char minutesChar[];
 
 typedef void (*health_changed_cb)();

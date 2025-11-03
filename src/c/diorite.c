@@ -43,6 +43,10 @@ static void canvas_draw_arc(GContext *ctx, GRect rect, int32_t angle_start, int3
     angle_start += 90;
     GOvalScaleMode scaleMode = GOvalScaleModeFitCircle;
     int32_t angle_end = angle_start + angle_sweep;
+    if (angle_sweep < 0) {
+        angle_end = angle_start;
+        angle_start = angle_end + angle_sweep;
+    }
     graphics_draw_arc(ctx, rect, scaleMode, DEG_TO_TRIGANGLE(angle_start), DEG_TO_TRIGANGLE(angle_end));
 }
 
@@ -57,17 +61,18 @@ static void drawSimpleBackground(GContext *ctx) {
 
     // outer ring
     graphics_context_set_stroke_color(ctx, GColorWhite);
-    graphics_context_set_stroke_width(ctx, px(20));
-    gap = 5; // was 3 but stroke is not square?
-    GRect mArcRect = setArcRect(px(38));
-    canvas_draw_arc(ctx, mArcRect, 90+gap, 120-gap-gap);
-    canvas_draw_arc(ctx, mArcRect, 90+gap+120, 120-gap-gap);
-    canvas_draw_arc(ctx, mArcRect, 90+gap+240, 120-gap-gap);
+    graphics_context_set_stroke_width(ctx, px(14));
+    gap = 4; // was 3 but stroke is not square?
+    GRect mArcRect = setArcRect(px(34));
+    int max_sweep = 120 - gap - gap;
+    canvas_draw_arc(ctx, mArcRect, 90+gap, max_sweep);
+    canvas_draw_arc(ctx, mArcRect, 90+gap+120, max_sweep);
+    canvas_draw_arc(ctx, mArcRect, 90+gap+240, max_sweep);
 
     if (!pulsing && !showOnlyAnims) {
         // remove the contents of the outer ring segments
         graphics_context_set_stroke_color(ctx, GColorBlack);
-        graphics_context_set_stroke_width(ctx, px(16));
+        graphics_context_set_stroke_width(ctx, px(8));
         sweep = 120 - gap - gap - 2;
         angle = 90 + gap + 1;
         canvas_draw_arc(ctx, mArcRect, angle, sweep);
@@ -121,6 +126,7 @@ static void drawComplexBackground(GContext *ctx) {
         //}
     }
 
+    // not enough pixels for this?
     // int sweep;
     // if (showOnlyAnims) {
     //     // left half circle
@@ -303,7 +309,7 @@ static void drawComplexBackground(GContext *ctx) {
 
 static void drawComplications(GContext *ctx) {
     int gap;
-    float angle, sweep; //, percent;
+    float angle, sweep, percent;
 
     if (mBattery != -1) {
         // battery ring
@@ -331,29 +337,39 @@ static void drawComplications(GContext *ctx) {
         // }
     }
 
-//     if (!pulsing) {
-//         gap = 3;
-//         setArcRect(px(38));
+    if (!pulsing) {
+        graphics_context_set_stroke_color(ctx, GColorWhite);
+        graphics_context_set_stroke_width(ctx, px(14));
+        gap = 4; // was 3 but stroke is not square?
+        GRect mArcRect = setArcRect(px(34));
 
-//         // hours draws from the middle out
-//         angle = 90 + gap + 120 + 1 + 56;
-//         percent = (int)(mHours * 112);
-//         angle -= percent / 2f;
-//         sweep = percent;
-//         canvas.drawArc(mArcRect, angle, sweep, false, mOuterBandPaint);
+        int max_sweep = 120 - gap - gap;
 
-//         // minutes fills down
-//         angle = 90 + 120 - gap - 1;
-//         percent = (int)(mMinutes * 112);
-//         sweep = -percent;
-//         canvas.drawArc(mArcRect, angle, sweep, false, mOuterBandPaint);
+        // hours draws from the middle out
+        angle = 90 + gap + 120 + (max_sweep/2);
+        percent = (int)(mHours * max_sweep);
+        angle -= percent / 2.0f;
+        sweep = percent;
+        if (percent) {
+            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        }
 
-//         // steps fills up
-//         angle = 90 + gap + 240 + 1;
-//         percent = (int)(mSteps * 112);
-//         sweep = percent;
-//         canvas.drawArc(mArcRect, angle, sweep, false, mOuterBandPaint);
-//     }
+        // minutes fills down
+        angle = 90 + gap + max_sweep;
+        percent = (int)(mMinutes * max_sweep);
+        sweep = -percent;
+        if (percent) {
+            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        }
+
+        // steps fills up
+        angle = 90 + gap + 240;
+        percent = (int)(mSteps * max_sweep);
+        sweep = percent;
+        if (percent) {
+            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        }
+    }
 
 //     // complication icons also draw when pulsing
 //     if (mHoursIcon != null) {
@@ -461,11 +477,13 @@ void main_window_load(Window *window) {
     int w = window_bounds.size.w;
     int h = window_bounds.size.h;
     // the width is intentionally wider than the actual screen
-    w = 400 * 0.4; //1.15 * w;
+    w = 400 * 0.4;
     // offset so the image is centered
     x -= (w - window_bounds.size.w) / 2.0;
     // heigh matches width
     h = w;
+    // offset so the image is centered
+    y -= (h - window_bounds.size.h) / 2.0;
     GRect bounds = GRect(x, y, w, h);
 
     mCenterX = bounds.size.w / 2.0f;
@@ -480,7 +498,7 @@ void main_window_load(Window *window) {
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
-    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_40));
+    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_45));
     s_time_layer = text_layer_create(GRect(x + mCenterX - px(195), mCenterY - px(35), px(400), px(139)));
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorWhite);

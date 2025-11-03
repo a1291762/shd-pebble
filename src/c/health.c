@@ -3,11 +3,11 @@
 #include "settings.h"
 #include "hours.h"
 
-int mSteps;
+float mSteps;
 char stepsChar[12];
-int mHours;
+float mHours;
 char hoursChar[9];
-int mMinutes;
+float mMinutes;
 char minutesChar[9];
 
 static health_changed_cb health_changed;
@@ -38,6 +38,7 @@ static char *health_event_type_enum(HealthEventType event) {
 }
 
 static bool count_minutes(HealthActivity activity, time_t time_start, time_t time_end, void *context) {
+    int *out_minutes = context;
     if (time_end > time_start) {
         int minutes = (time_end - time_start) / 60;
         struct tm *tick_time = localtime(&time_start);
@@ -45,9 +46,19 @@ static bool count_minutes(HealthActivity activity, time_t time_start, time_t tim
         strftime(time, sizeof(time), "%H:%M", tick_time);
         char *act = health_activity_enum(activity);
         APP_LOG(APP_LOG_LEVEL_DEBUG, "activity %s time %s minutes %d", act, time, minutes);
-        mMinutes += minutes;
+        *out_minutes += minutes;
     }
     return true;
+}
+
+static float value_to_percent(int value, int max) {
+    if (value < 0) {
+        return 0;
+    } else if (value < max) {
+        return value / (float)max;
+    } else {
+        return 1.0f;
+    }
 }
 
 static void health_handler(HealthEventType event, void *context) {
@@ -57,31 +68,34 @@ static void health_handler(HealthEventType event, void *context) {
         time_t now = time(NULL);
         time_t start_of_day = time_start_of_today();
 
-        mSteps = health_service_sum_today(HealthMetricStepCount);
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "mSteps %d", mSteps);
+        int steps = health_service_sum_today(HealthMetricStepCount);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "steps %d", steps);
+        mSteps = value_to_percent(steps, 5000);
         stepsChar[0] = '\0';
         int index = 0;
-        if (mSteps > 1000000) {
+        if (steps > 1000000) {
             const char *fmt = "%3d,";
-            index += snprintf(stepsChar, sizeof(stepsChar), fmt, mSteps / 1000000);
+            index += snprintf(stepsChar, sizeof(stepsChar), fmt, steps / 1000000);
         }
-        if (mSteps > 1000) {
-            const char *fmt = (mSteps > 1000000) ? "%03d," : "%3d,";
-            index += snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, mSteps / 1000);
+        if (steps > 1000) {
+            const char *fmt = (steps > 1000000) ? "%03d," : "%3d,";
+            index += snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, steps / 1000);
         }
-        const char *fmt = (mSteps > 1000) ? "%03d" : "%3d";
-        snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, mSteps % 1000);
+        const char *fmt = (steps > 1000) ? "%03d" : "%3d";
+        snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, steps % 1000);
 
         hours_update();
-        mHours = hours_data.hours_active;
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "mHours %d", mHours);
-        snprintf(hoursChar, sizeof(hoursChar), "%d", mHours);
+        int hours = hours_data.hours_active;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "hours %d", hours);
+        mHours = value_to_percent(hours, 6);
+        snprintf(hoursChar, sizeof(hoursChar), "%d", hours);
 
-        mMinutes = 0;
+        int minutes = 0;
         HealthActivityMask activity_mask = HealthActivityWalk | HealthActivityRun | HealthActivityOpenWorkout;
-        health_service_activities_iterate(activity_mask, start_of_day, now, HealthIterationDirectionFuture, count_minutes, NULL);
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "mMinutes %d", mMinutes);
-        snprintf(minutesChar, sizeof(minutesChar), "%d", mMinutes);
+        health_service_activities_iterate(activity_mask, start_of_day, now, HealthIterationDirectionFuture, count_minutes, &minutes);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "minutes %d", minutes);
+        mMinutes = value_to_percent(minutes, 20);
+        snprintf(minutesChar, sizeof(minutesChar), "%d", minutes);
     }
 
     if (health_changed) {
