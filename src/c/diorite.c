@@ -24,6 +24,7 @@ static float mScale;
 static bool pulsing = false;
 static bool mAmbient = false;
 static bool showOnlyAnims = false;
+static char *smallFont = FONT_KEY_GOTHIC_18_BOLD;
 
 static float px(float px) {
     return px * mScale;
@@ -475,12 +476,12 @@ void main_window_load(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "mScale %d.%03d", (int)mScale, (int)(mScale*1000)%1000);
 
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
-    s_background_layer = bitmap_layer_create(GRect(x + mCenterX - px(60), mCenterY - px(145), px(120), px(120)));
+    s_background_layer = bitmap_layer_create(GRect(x + mCenterX - px(65), mCenterY - px(135), px(120), px(120)));
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
     s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_40));
-    s_time_layer = text_layer_create(GRect(x + mCenterX - px(195), mCenterY - px(55), px(400), px(139)));
+    s_time_layer = text_layer_create(GRect(x + mCenterX - px(195), mCenterY - px(35), px(400), px(139)));
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorWhite);
     text_layer_set_font(s_time_layer, s_time_font);
@@ -488,66 +489,66 @@ void main_window_load(Window *window) {
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
 
-    s_date_layer_1 = text_layer_create(GRect(x + mCenterX - px(95) - px(25), mCenterY - px(110), px(55), px(40)));
+    s_date_layer_1 = text_layer_create(GRect(x + mCenterX - px(95) - px(45), mCenterY - px(120), px(75), px(50)));
     text_layer_set_background_color(s_date_layer_1, GColorClear);
     text_layer_set_text_color(s_date_layer_1, GColorWhite);
-    text_layer_set_font(s_date_layer_1, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_date_layer_1, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_1, GTextAlignmentRight);
     text_layer_set_text(s_date_layer_1, "01");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_1));
 
-    s_date_layer_2 = text_layer_create(GRect(x + mCenterX - px(95) - px(25), mCenterY - px(80), px(55), px(40)));
+    s_date_layer_2 = text_layer_create(GRect(x + mCenterX - px(95) - px(45), mCenterY - px(80), px(75), px(50)));
     text_layer_set_background_color(s_date_layer_2, GColorClear);
     text_layer_set_text_color(s_date_layer_2, GColorWhite);
-    text_layer_set_font(s_date_layer_2, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_date_layer_2, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_2, GTextAlignmentRight);
     text_layer_set_text(s_date_layer_2, "Jan");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_2));
 
-    s_date_layer_3 = text_layer_create(GRect(x + mCenterX + px(95) - px(35), mCenterY - px(110), px(55), px(40)));
+    s_date_layer_3 = text_layer_create(GRect(x + mCenterX + px(85) - px(35), mCenterY - px(120), px(75), px(50)));
     text_layer_set_background_color(s_date_layer_3, GColorClear);
     text_layer_set_text_color(s_date_layer_3, GColorWhite);
-    text_layer_set_font(s_date_layer_3, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_date_layer_3, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_3, GTextAlignmentLeft);
     text_layer_set_text(s_date_layer_3, "Mon");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_3));
 
-    s_date_layer_4 = text_layer_create(GRect(x + mCenterX + px(95) - px(35), mCenterY - px(80), px(75), px(40)));
+    s_date_layer_4 = text_layer_create(GRect(x + mCenterX + px(85) - px(35), mCenterY - px(80), px(85), px(50)));
     text_layer_set_background_color(s_date_layer_4, GColorClear);
     text_layer_set_text_color(s_date_layer_4, GColorWhite);
-    text_layer_set_font(s_date_layer_4, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_date_layer_4, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_4, GTextAlignmentLeft);
     text_layer_set_text(s_date_layer_4, "1970");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_4));
 
-    s_battery_layer = text_layer_create(GRect(0, 0, window_bounds.size.w, px(40)));
+    s_battery_layer = text_layer_create(GRect(0, -5, window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_battery_layer, GColorClear);
     text_layer_set_text_color(s_battery_layer, GColorWhite);
-    text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_battery_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_battery_layer, GTextAlignmentRight);
     text_layer_set_text(s_battery_layer, "100%");
     layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
 
-    s_step_layer = text_layer_create(GRect(0, window_bounds.size.h - px(40), window_bounds.size.w, px(40)));
+    s_step_layer = text_layer_create(GRect(0, window_bounds.size.h - px(50), window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_step_layer, GColorClear);
     text_layer_set_text_color(s_step_layer, GColorWhite);
-    text_layer_set_font(s_step_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_step_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_step_layer, GTextAlignmentRight);
     text_layer_set_text(s_step_layer, "5 mins");
     layer_add_child(window_layer, text_layer_get_layer(s_step_layer));
 
-    s_minute_layer = text_layer_create(GRect(0, window_bounds.size.h - px(40), window_bounds.size.w, px(40)));
+    s_minute_layer = text_layer_create(GRect(0, window_bounds.size.h - px(50), window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_minute_layer, GColorClear);
     text_layer_set_text_color(s_minute_layer, GColorWhite);
-    text_layer_set_font(s_minute_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_minute_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_minute_layer, GTextAlignmentLeft);
     text_layer_set_text(s_minute_layer, "steps 1000");
     layer_add_child(window_layer, text_layer_get_layer(s_minute_layer));
 
-    s_hour_layer = text_layer_create(GRect(0, 0, window_bounds.size.w, px(40)));
+    s_hour_layer = text_layer_create(GRect(0, -5, window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_hour_layer, GColorClear);
     text_layer_set_text_color(s_hour_layer, GColorWhite);
-    text_layer_set_font(s_hour_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(s_hour_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_hour_layer, GTextAlignmentLeft);
     text_layer_set_text(s_hour_layer, "1 hour");
     layer_add_child(window_layer, text_layer_get_layer(s_hour_layer));

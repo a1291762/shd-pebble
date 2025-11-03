@@ -69,7 +69,7 @@ static void health_handler(HealthEventType event, void *context) {
             const char *fmt = (mSteps > 1000000) ? "%03d," : "%3d,";
             index += snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, mSteps / 1000);
         }
-        const char *fmt = (mSteps > 1000) ? "%03d," : "%3d,";
+        const char *fmt = (mSteps > 1000) ? "%03d" : "%3d";
         snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, mSteps % 1000);
 
         hours_update();
