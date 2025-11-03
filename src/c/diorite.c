@@ -3,6 +3,7 @@
 #include "math.h"
 #include "battery.h"
 #include "time.h"
+#include "health.h"
 
 static TextLayer *s_time_layer;
 static GFont s_time_font;
@@ -13,6 +14,8 @@ static TextLayer *s_date_layer_2;
 static TextLayer *s_date_layer_3;
 static TextLayer *s_date_layer_4;
 static TextLayer *s_battery_layer;
+static TextLayer *s_step_layer;
+static TextLayer *s_minute_layer;
 static Layer *s_draw_layer;
 static float mCenterX;
 static float mCenterY;
@@ -92,10 +95,10 @@ static void drawComplexBackground(GContext *ctx) {
         float tick_innerY = -math_cos(tickRot) * innerTickRadius;
         float tick_outerX = math_sin(tickRot) * outerTickRadius;
         float tick_outerY = -math_cos(tickRot) * outerTickRadius;
-        if (mBattery == -1 || showOnlyAnims || (tickIndex > 1 && tickIndex < (ticks - 1))) {
+        //if (mBattery == -1 || showOnlyAnims || (tickIndex > 1 && tickIndex < (ticks - 1))) {
             canvas_draw_line(ctx, mCenterX + tick_innerX, mCenterY + tick_innerY,
                     mCenterX + tick_outerX, mCenterY + tick_outerY);
-        }
+        //}
     }
 
     if (settings.DisplaySeconds) {
@@ -103,7 +106,7 @@ static void drawComplexBackground(GContext *ctx) {
         graphics_context_set_stroke_color(ctx, GColorWhite);
         graphics_context_set_stroke_width(ctx, 2);
         int tickOffset = (int)((now % 60000) / 1000) * (ticks/60);
-        if (mBattery == -1 || showOnlyAnims || (tickOffset > 1 && tickOffset < (ticks - 1))) {
+        //if (mBattery == -1 || showOnlyAnims || (tickOffset > 1 && tickOffset < (ticks - 1))) {
             float tickRot = one * tickOffset;
             // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickOffset %d", tickOffset);
             // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickRot %d.%03d", (int)tickRot, (int)(tickRot*1000)%1000);
@@ -113,10 +116,10 @@ static void drawComplexBackground(GContext *ctx) {
             float outerY = -math_cos(tickRot) * outerTickRadius;
             canvas_draw_line(ctx, mCenterX + innerX, mCenterY + innerY,
                     mCenterX + outerX, mCenterY + outerY);
-        }
+        //}
     }
 
-    int sweep;
+    // int sweep;
     // if (showOnlyAnims) {
     //     // left half circle
     //     graphics_context_set_stroke_color(ctx, GColorWhite);
@@ -298,7 +301,7 @@ static void drawComplexBackground(GContext *ctx) {
 
 static void drawComplications(GContext *ctx) {
     int gap;
-    float angle, sweep, percent;
+    float angle, sweep; //, percent;
 
     if (mBattery != -1) {
         // battery ring
@@ -432,9 +435,15 @@ static void battery_changed() {
     text_layer_set_text(s_battery_layer, batteryChar);
 }
 
+static void health_changed() {
+    text_layer_set_text(s_step_layer, stepsChar);
+    text_layer_set_text(s_minute_layer, minutesChar);
+}
+
 static void settings_changed() {
     time_init(time_changed);
     battery_init(battery_changed);
+    health_init(health_changed);
 }
 
 void main_window_load(Window *window) {
@@ -507,13 +516,29 @@ void main_window_load(Window *window) {
     text_layer_set_text(s_date_layer_4, "1970");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_4));
 
-    s_battery_layer = text_layer_create(GRect(x + mCenterX - px(40), mCenterY - px(210), px(90), px(40)));
+    s_battery_layer = text_layer_create(GRect(0, 0, window_bounds.size.w, px(40)));
     text_layer_set_background_color(s_battery_layer, GColorClear);
     text_layer_set_text_color(s_battery_layer, GColorWhite);
     text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-    text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
+    text_layer_set_text_alignment(s_battery_layer, GTextAlignmentRight);
     text_layer_set_text(s_battery_layer, "100%");
     layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
+
+    s_step_layer = text_layer_create(GRect(0, window_bounds.size.h - px(40), window_bounds.size.w, px(40)));
+    text_layer_set_background_color(s_step_layer, GColorClear);
+    text_layer_set_text_color(s_step_layer, GColorWhite);
+    text_layer_set_font(s_step_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_text_alignment(s_step_layer, GTextAlignmentRight);
+    text_layer_set_text(s_step_layer, "5 mins");
+    layer_add_child(window_layer, text_layer_get_layer(s_step_layer));
+
+    s_minute_layer = text_layer_create(GRect(0, window_bounds.size.h - px(40), window_bounds.size.w, px(40)));
+    text_layer_set_background_color(s_minute_layer, GColorClear);
+    text_layer_set_text_color(s_minute_layer, GColorWhite);
+    text_layer_set_font(s_minute_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_text_alignment(s_minute_layer, GTextAlignmentLeft);
+    text_layer_set_text(s_minute_layer, "steps 1000");
+    layer_add_child(window_layer, text_layer_get_layer(s_minute_layer));
 
     s_draw_layer = layer_create(bounds);
     layer_set_update_proc(s_draw_layer, layer_update_proc);
@@ -532,8 +557,10 @@ void main_window_unload(Window *window) {
     text_layer_destroy(s_date_layer_3);
     text_layer_destroy(s_date_layer_4);
     text_layer_destroy(s_battery_layer);
+    text_layer_destroy(s_step_layer);
     layer_destroy(s_draw_layer);
     settings_deinit();
     time_deinit();
     battery_deinit();
+    health_deinit();
 }

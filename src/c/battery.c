@@ -25,6 +25,7 @@ void battery_init(battery_changed_cb callback) {
 
     battery_state_service_unsubscribe();
     mBattery = -1;
+    batteryChar[0] = '\0';
     if (settings.DisplayBattery) {
         battery_state_service_subscribe(handle_battery);
         handle_battery(battery_state_service_peek());
