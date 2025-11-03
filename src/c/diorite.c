@@ -1,7 +1,8 @@
 #include <pebble.h>
 #include "settings.h"
-
-#ifdef PBL_PLATFORM_DIORITE
+#include "math.h"
+#include "battery.h"
+#include "time.h"
 
 static TextLayer *s_time_layer;
 static GFont s_time_font;
@@ -19,75 +20,6 @@ static float mScale;
 static bool pulsing = false;
 static bool mAmbient = false;
 static bool showOnlyAnims = false;
-static float PI = 3.141592653589793f;
-static float CIRCLE = (float)(3.141592653589793f * 2);
-static int mBattery = -1;
-static unsigned long now = 0;
-
-static float math_sin(float radians) {
-    float degrees = radians * 180 / PI;
-    int32_t _angle = DEG_TO_TRIGANGLE(degrees);
-    int32_t _ret = sin_lookup(_angle);
-    float ret = _ret / (float)TRIG_MAX_RATIO;
-    return ret;
-}
-
-static float math_cos(float radians) {
-    float degrees = radians * 180 / PI;
-    int32_t _angle = DEG_TO_TRIGANGLE(degrees);
-    int32_t _ret = cos_lookup(_angle);
-    float ret = _ret / (float)TRIG_MAX_RATIO;
-    return ret;
-}
-
-static void update_time(bool force) {
-    time_t temp = time(NULL);
-    now = temp * 1000;
-
-    if (settings.DisplaySeconds && !force && temp % 60 != 0) {
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "quick draw");
-        layer_mark_dirty(s_draw_layer);
-        return;
-    }
-
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "slow draw");
-    struct tm *tick_time = localtime(&temp);
-    static char s_time[8];
-    strftime(s_time, sizeof(s_time), (clock_is_24h_style() ? "%k:%M" : "%l:%M"), tick_time);
-    text_layer_set_text(s_time_layer, s_time);
-
-    static char s_day[3];
-    strftime(s_day, sizeof(s_day), "%d", tick_time);
-    text_layer_set_text(s_date_layer_1, s_day);
-
-    static char s_mon[5];
-    strftime(s_mon, sizeof(s_mon), "%b", tick_time);
-    text_layer_set_text(s_date_layer_2, s_mon);
-
-    static char s_dow[5];
-    strftime(s_dow, sizeof(s_dow), "%a", tick_time);
-    text_layer_set_text(s_date_layer_3, s_dow);
-
-    static char s_year[5];
-    strftime(s_year, sizeof(s_year), "%Y", tick_time);
-    text_layer_set_text(s_date_layer_4, s_year);
-}
-
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-    update_time(false);
-}
-
-static void handle_battery(BatteryChargeState charge_state) {
-    mBattery = charge_state.charge_percent;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "mBattery %d", mBattery);
-
-    static char batteryChar[5];
-    batteryChar[0] = mBattery == 100 ? '1' : ' ';
-    batteryChar[1] = mBattery >= 10 ? (char)(((mBattery % 100) / 10) + (int)'0') : ' ';
-    batteryChar[2] = (char)((mBattery % 10) + (int)'0');
-    batteryChar[3] = '%';
-    text_layer_set_text(s_battery_layer, batteryChar);
-}
 
 static float px(float px) {
     return px * mScale;
@@ -487,22 +419,22 @@ static void layer_update_proc(Layer *layer, GContext *ctx) {
     }
 }
 
-void settings_changed() {
-    TimeUnits units = MINUTE_UNIT;
-    if (settings.DisplaySeconds) {
-        units = SECOND_UNIT;
-    }
-    tick_timer_service_unsubscribe();
-    tick_timer_service_subscribe(units, tick_handler);
-    update_time(true);
+static void time_changed() {
+    text_layer_set_text(s_time_layer, s_time);
+    text_layer_set_text(s_date_layer_1, s_day);
+    text_layer_set_text(s_date_layer_2, s_mon);
+    text_layer_set_text(s_date_layer_3, s_dow);
+    text_layer_set_text(s_date_layer_4, s_year);
+    layer_mark_dirty(s_draw_layer);
+}
 
-    battery_state_service_unsubscribe();
-    mBattery = -1;
-    text_layer_set_text(s_battery_layer, "");
-    if (settings.DisplayBattery) {
-        battery_state_service_subscribe(handle_battery);
-        handle_battery(battery_state_service_peek());
-    }
+static void battery_changed() {
+    text_layer_set_text(s_battery_layer, batteryChar);
+}
+
+static void settings_changed() {
+    time_init(time_changed);
+    battery_init(battery_changed);
 }
 
 void main_window_load(Window *window) {
@@ -587,7 +519,7 @@ void main_window_load(Window *window) {
     layer_set_update_proc(s_draw_layer, layer_update_proc);
     layer_add_child(window_layer, s_draw_layer);
 
-    settings_changed();
+    settings_init(settings_changed);
 }
 
 void main_window_unload(Window *window) {
@@ -601,8 +533,7 @@ void main_window_unload(Window *window) {
     text_layer_destroy(s_date_layer_4);
     text_layer_destroy(s_battery_layer);
     layer_destroy(s_draw_layer);
-    tick_timer_service_unsubscribe();
-    battery_state_service_unsubscribe();
+    settings_deinit();
+    time_deinit();
+    battery_deinit();
 }
-
-#endif

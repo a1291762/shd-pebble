@@ -1,39 +1,69 @@
 #include <pebble.h>
 #include "settings.h"
 
-// defined in each platform's file
-void settings_changed();
-
-struct ClaySettings settings;
-
 #define SETTINGS_KEY 1
 
+struct Settings settings;
+static settings_changed_cb settings_changed;
+
+static void reset_settings() {
+    settings.DisplaySeconds = true;
+    settings.DisplayBattery = true;
+    settings.DisplayHealth = true;
+}
+
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
-    Tuple *battery = dict_find(iter, MESSAGE_KEY_DisplayBattery);
-    if (battery) {
-        settings.DisplayBattery = battery->value->int32 == 1;
+    Tuple *tuple;
+    if ((tuple = dict_find(iter, MESSAGE_KEY_DisplaySeconds))) {
+        settings.DisplaySeconds = tuple->value->int32 == 1;
     }
 
-    Tuple *seconds = dict_find(iter, MESSAGE_KEY_DisplaySeconds);
-    if (seconds) {
-        settings.DisplaySeconds = seconds->value->int32 == 1;
+    if ((tuple = dict_find(iter, MESSAGE_KEY_DisplayBattery))) {
+        settings.DisplayBattery = tuple->value->int32 == 1;
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_DisplayHealth))) {
+        settings.DisplayHealth = tuple->value->int32 == 1;
     }
 
     // save to config
     persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
 
     // update UI
-    settings_changed();
+    if (settings_changed) {
+        settings_changed();
+    }
 }
 
-void settings_init() {
-    // default if no config
-    settings.DisplayBattery = false;
-    settings.DisplaySeconds = false;
+void settings_init(settings_changed_cb callback) {
+    settings_changed = callback;
 
     // load from config
-    persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
+    int read = persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
+    // FIXME handle upgrades that expand the settings struct
+    if (read == E_DOES_NOT_EXIST || read != sizeof(settings)) {
+        reset_settings();
+        persist_delete(SETTINGS_KEY);
+    }
 
     app_message_register_inbox_received(inbox_received_handler);
-    app_message_open(128, 128);
+
+    Tuplet pairs[] = {
+        TupletInteger(MESSAGE_KEY_DisplaySeconds, 1),
+        TupletInteger(MESSAGE_KEY_DisplayBattery, 1),
+        TupletInteger(MESSAGE_KEY_DisplayHealth, 1),
+    };
+    uint32_t size = dict_calc_buffer_size_from_tuplets(pairs, ARRAY_LENGTH(pairs));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %u", size);
+    app_message_open(size, size);
+
+    if (settings_changed) {
+        settings_changed();
+    }
+}
+
+void settings_deinit() {
+    settings_changed = NULL;
+
+    app_message_deregister_callbacks();
 }

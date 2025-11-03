@@ -1,0 +1,29 @@
+[
+  {
+    "type": "section",
+    "items": [
+      {
+        "type": "toggle",
+        "messageKey": "DisplaySeconds",
+        "label": "Display Seconds",
+        "defaultValue": true
+      },
+      {
+        "type": "toggle",
+        "messageKey": "DisplayBattery",
+        "label": "Display Battery",
+        "defaultValue": true
+      },
+      {
+        "type": "toggle",
+        "messageKey": "DisplayHealth",
+        "label": "Display Health",
+        "defaultValue": true
+      }
+    ]
+  },
+  {
+    "type": "submit",
+    "defaultValue": "Save Settings"
+  }
+]

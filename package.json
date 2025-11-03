@@ -16,8 +16,9 @@
       "configurable"
     ],
     "messageKeys": [
+      "DisplaySeconds",
       "DisplayBattery",
-      "DisplaySeconds"
+      "DisplayHealth"
     ],
     "targetPlatforms": [
       "diorite"
