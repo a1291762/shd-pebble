@@ -16,6 +16,7 @@ static TextLayer *s_date_layer_4;
 static TextLayer *s_battery_layer;
 static TextLayer *s_step_layer;
 static TextLayer *s_minute_layer;
+static TextLayer *s_hour_layer;
 static Layer *s_draw_layer;
 static float mCenterX;
 static float mCenterY;
@@ -438,6 +439,7 @@ static void battery_changed() {
 static void health_changed() {
     text_layer_set_text(s_step_layer, stepsChar);
     text_layer_set_text(s_minute_layer, minutesChar);
+    text_layer_set_text(s_hour_layer, hoursChar);
 }
 
 static void settings_changed() {
@@ -540,6 +542,14 @@ void main_window_load(Window *window) {
     text_layer_set_text(s_minute_layer, "steps 1000");
     layer_add_child(window_layer, text_layer_get_layer(s_minute_layer));
 
+    s_hour_layer = text_layer_create(GRect(0, 0, window_bounds.size.w, px(40)));
+    text_layer_set_background_color(s_hour_layer, GColorClear);
+    text_layer_set_text_color(s_hour_layer, GColorWhite);
+    text_layer_set_font(s_hour_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_text_alignment(s_hour_layer, GTextAlignmentLeft);
+    text_layer_set_text(s_hour_layer, "1 hour");
+    layer_add_child(window_layer, text_layer_get_layer(s_hour_layer));
+
     s_draw_layer = layer_create(bounds);
     layer_set_update_proc(s_draw_layer, layer_update_proc);
     layer_add_child(window_layer, s_draw_layer);
@@ -558,6 +568,8 @@ void main_window_unload(Window *window) {
     text_layer_destroy(s_date_layer_4);
     text_layer_destroy(s_battery_layer);
     text_layer_destroy(s_step_layer);
+    text_layer_destroy(s_minute_layer);
+    text_layer_destroy(s_hour_layer);
     layer_destroy(s_draw_layer);
     settings_deinit();
     time_deinit();

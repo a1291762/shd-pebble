@@ -2,6 +2,8 @@
 
 extern int mSteps;
 extern char stepsChar[9];
+extern int mHours;
+extern char hoursChar[9];
 extern int mMinutes;
 extern char minutesChar[9];
 
