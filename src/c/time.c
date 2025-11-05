@@ -46,6 +46,7 @@ void time_init(time_changed_cb callback) {
         units = SECOND_UNIT;
     }
     tick_timer_service_subscribe(units, tick_handler);
+    // probe for initial time
     time_update(true);
 }
 

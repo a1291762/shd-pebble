@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include "hours.h"
-
-#define HOURS_KEY 2
+#include "keys.h"
 
 struct HoursData hours_data = {0, 0, 0};
 

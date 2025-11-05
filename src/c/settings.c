@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include "settings.h"
-
-#define SETTINGS_KEY 1
+#include "keys.h"
 
 struct Settings settings;
 static settings_changed_cb settings_changed;
