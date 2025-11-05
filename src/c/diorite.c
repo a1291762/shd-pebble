@@ -63,7 +63,7 @@ static void drawSimpleBackground(GContext *ctx) {
     float angle, sweep;
 
     // outer ring
-    graphics_context_set_stroke_color(ctx, fgColor);
+    graphics_context_set_stroke_color(ctx, PBL_IF_COLOR_ELSE(GColorOrange, fgColor));
     graphics_context_set_stroke_width(ctx, px(14));
     gap = 4; // was 3 but stroke is not square?
     GRect mArcRect = setArcRect(px(34));
@@ -105,10 +105,11 @@ static void drawComplexBackground(GContext *ctx) {
         float tick_innerY = -math_cos(tickRot) * innerTickRadius;
         float tick_outerX = math_sin(tickRot) * outerTickRadius;
         float tick_outerY = -math_cos(tickRot) * outerTickRadius;
-        //if (mBattery == -1 || showOnlyAnims || (tickIndex > 1 && tickIndex < (ticks - 1))) {
+        bool showAllTicks = PBL_IF_ROUND_ELSE(false, true);
+        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickIndex > 1 && tickIndex < (ticks - 1))) {
             canvas_draw_line(ctx, mCenterX + tick_innerX, mCenterY + tick_innerY,
                     mCenterX + tick_outerX, mCenterY + tick_outerY);
-        //}
+        }
     }
 
     if (settings.DisplaySeconds) {
@@ -116,7 +117,8 @@ static void drawComplexBackground(GContext *ctx) {
         graphics_context_set_stroke_color(ctx, fgColor);
         graphics_context_set_stroke_width(ctx, 2);
         int tickOffset = (int)((now % 60000) / 1000) * (ticks/60);
-        //if (mBattery == -1 || showOnlyAnims || (tickOffset > 1 && tickOffset < (ticks - 1))) {
+        bool showAllTicks = PBL_IF_ROUND_ELSE(false, true);
+        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickOffset > 1 && tickOffset < (ticks - 1))) {
             float tickRot = one * tickOffset;
             // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickOffset %d", tickOffset);
             // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickRot %d.%03d", (int)tickRot, (int)(tickRot*1000)%1000);
@@ -126,7 +128,7 @@ static void drawComplexBackground(GContext *ctx) {
             float outerY = -math_cos(tickRot) * outerTickRadius;
             canvas_draw_line(ctx, mCenterX + innerX, mCenterY + innerY,
                     mCenterX + outerX, mCenterY + outerY);
-        //}
+        }
     }
 
     // not enough pixels for this?
@@ -316,9 +318,9 @@ static void drawComplications(GContext *ctx) {
 
     if (mBattery != -1) {
         // battery ring
-        graphics_context_set_stroke_color(ctx, fgColor);
+        graphics_context_set_stroke_color(ctx, PBL_IF_COLOR_ELSE(GColorGreen, fgColor));
         graphics_context_set_stroke_width(ctx, 1);
-        gap = 8;
+        gap = PBL_IF_ROUND_ELSE(8, 0);
         GRect mArcRect = setArcRect(px(21));
         angle = 270 - gap;
         sweep = (360 - gap - gap) * (mBattery / 100.0f);
@@ -341,7 +343,7 @@ static void drawComplications(GContext *ctx) {
     }
 
     if (!pulsing) {
-        graphics_context_set_stroke_color(ctx, fgColor);
+        graphics_context_set_stroke_color(ctx, PBL_IF_COLOR_ELSE(GColorOrange, fgColor));
         graphics_context_set_stroke_width(ctx, px(14));
         gap = 4; // was 3 but stroke is not square?
         GRect mArcRect = setArcRect(px(34));
@@ -508,21 +510,27 @@ void main_window_load(Window *window) {
     int y = window_bounds.origin.y;
     int w = window_bounds.size.w;
     int h = window_bounds.size.h;
-    // the width is intentionally wider than the actual screen
-    w = 400 * 0.4;
-    // offset so the image is centered
-    x -= (w - window_bounds.size.w) / 2.0;
-    // heigh matches width
-    h = w;
-    // offset so the image is centered
-    y -= (h - window_bounds.size.h) / 2.0;
+    PBL_IF_ROUND_ELSE({
+    }, {
+        // the width is intentionally wider than the actual screen
+        w = 400 * 0.4;
+        // offset so the image is centered
+        x -= (w - window_bounds.size.w) / 2.0;
+        // heigh matches width
+        h = w;
+        // offset so the image is centered
+        y -= (h - window_bounds.size.h) / 2.0;
+    });
     GRect bounds = GRect(x, y, w, h);
 
     mCenterX = bounds.size.w / 2.0f;
     mCenterY = bounds.size.h / 2.0f;
     APP_LOG(APP_LOG_LEVEL_DEBUG, "center is %d %d", (int)mCenterX, (int)mCenterY);
-    // mLastX = bounds.size.w - 1;
-    mScale = 0.4; //(bounds.size.w / 400.0f); // 1.0 on TicWatch E, 0.9 on TicWatch E3
+    PBL_IF_ROUND_ELSE({
+        mScale = bounds.size.w / 400.0f; // 1.0 on TicWatch E, 0.9 on TicWatch E3
+    }, {
+        mScale = 0.4;
+    });
     APP_LOG(APP_LOG_LEVEL_DEBUG, "mScale %d.%03d", (int)mScale, (int)(mScale*1000)%1000);
 
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
@@ -531,7 +539,9 @@ void main_window_load(Window *window) {
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
-    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_45));
+    s_time_font = fonts_load_custom_font(resource_get_handle(
+        PBL_IF_ROUND_ELSE(RESOURCE_ID_FONT_ALARM_CLOCK_50, RESOURCE_ID_FONT_ALARM_CLOCK_45)
+    ));
     s_time_layer = text_layer_create(GRect(x + mCenterX - px(195), mCenterY - px(35), px(400), px(139)));
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_font(s_time_layer, s_time_font);
@@ -567,10 +577,12 @@ void main_window_load(Window *window) {
     text_layer_set_text(s_date_layer_4, "1970");
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer_4));
 
-    s_battery_layer = text_layer_create(GRect(0, -5, window_bounds.size.w, px(50)));
+    
+    s_battery_layer = text_layer_create(PBL_IF_ROUND_ELSE(GRect(mCenterX - px(40), mCenterY - px(205), px(90), px(40)),
+                                                          GRect(0, -5, window_bounds.size.w, px(50))));
     text_layer_set_background_color(s_battery_layer, GColorClear);
-    text_layer_set_font(s_battery_layer, fonts_get_system_font(smallFont));
-    text_layer_set_text_alignment(s_battery_layer, GTextAlignmentRight);
+    text_layer_set_font(s_battery_layer, fonts_get_system_font(PBL_IF_ROUND_ELSE(FONT_KEY_GOTHIC_14, smallFont)));
+    text_layer_set_text_alignment(s_battery_layer, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentRight));
     text_layer_set_text(s_battery_layer, "100%");
     layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
 

@@ -27,6 +27,7 @@
     ],
     "targetPlatforms": [
       "aplite",
+      "chalk",
       "diorite"
     ],
     "watchapp": {
@@ -57,6 +58,7 @@
           "memoryFormat": "1BitPalette",
           "targetPlatforms": [
             "aplite",
+            "chalk",
             "diorite"
           ]
         },
@@ -65,14 +67,6 @@
           "name": "FONT_ALARM_CLOCK_50",
           "file": "fonts/alarm clock.ttf",
           "characterRegex": "[:0-9]",
-          "targetPlatforms": [
-            "chalk"
-          ]
-        },
-        {
-          "type": "bitmap",
-          "name": "IMAGE_HOLLOW",
-          "file": "images/hollow_60.png",
           "targetPlatforms": [
             "chalk"
           ]
