@@ -5,6 +5,7 @@
 #include "time.h"
 #include "health.h"
 
+static Window *s_window;
 static TextLayer *s_time_layer;
 static GFont s_time_font;
 static BitmapLayer *s_background_layer;
@@ -25,6 +26,8 @@ static bool pulsing = false;
 static bool mAmbient = false;
 static bool showOnlyAnims = false;
 static char *smallFont = FONT_KEY_GOTHIC_18_BOLD;
+static GColor fgColor;
+static GColor bgColor;
 
 static float px(float px) {
     return px * mScale;
@@ -60,7 +63,7 @@ static void drawSimpleBackground(GContext *ctx) {
     float angle, sweep;
 
     // outer ring
-    graphics_context_set_stroke_color(ctx, GColorWhite);
+    graphics_context_set_stroke_color(ctx, fgColor);
     graphics_context_set_stroke_width(ctx, px(14));
     gap = 4; // was 3 but stroke is not square?
     GRect mArcRect = setArcRect(px(34));
@@ -71,7 +74,7 @@ static void drawSimpleBackground(GContext *ctx) {
 
     if (!pulsing && !showOnlyAnims) {
         // remove the contents of the outer ring segments
-        graphics_context_set_stroke_color(ctx, GColorBlack);
+        graphics_context_set_stroke_color(ctx, bgColor);
         graphics_context_set_stroke_width(ctx, px(8));
         sweep = 120 - gap - gap - 2;
         angle = 90 + gap + 1;
@@ -88,7 +91,7 @@ static void drawSimpleBackground(GContext *ctx) {
 static void drawComplexBackground(GContext *ctx) {
     // ticks
     int ticks = 60;
-    graphics_context_set_stroke_color(ctx, GColorWhite);
+    graphics_context_set_stroke_color(ctx, fgColor);
     graphics_context_set_stroke_width(ctx, 1); //px(2)
     float outerTickRadius = mCenterX - px(5);
     float innerTickRadius = mCenterX - px(15);
@@ -110,7 +113,7 @@ static void drawComplexBackground(GContext *ctx) {
 
     if (settings.DisplaySeconds) {
         // active tick
-        graphics_context_set_stroke_color(ctx, GColorWhite);
+        graphics_context_set_stroke_color(ctx, fgColor);
         graphics_context_set_stroke_width(ctx, 2);
         int tickOffset = (int)((now % 60000) / 1000) * (ticks/60);
         //if (mBattery == -1 || showOnlyAnims || (tickOffset > 1 && tickOffset < (ticks - 1))) {
@@ -130,20 +133,20 @@ static void drawComplexBackground(GContext *ctx) {
     // int sweep;
     // if (showOnlyAnims) {
     //     // left half circle
-    //     graphics_context_set_stroke_color(ctx, GColorWhite);
+    //     graphics_context_set_stroke_color(ctx, fgColor);
     //     graphics_context_set_stroke_width(ctx, 1);
     //     GRect mArcRect = setArcRect(px(21));
     //     canvas_draw_arc(ctx, mArcRect, 90, 180);
     // } else {
     //     // outer ring details
-    //     graphics_context_set_stroke_color(ctx, GColorWhite);
+    //     graphics_context_set_stroke_color(ctx, fgColor);
     //     graphics_context_set_stroke_width(ctx, 1);
     //     GRect mArcRect = setArcRect(px(22));
     //     canvas_draw_arc(ctx, mArcRect, 0, 360);
     // }
 
     // // outer ring details 2
-    // graphics_context_set_stroke_color(ctx, GColorWhite);
+    // graphics_context_set_stroke_color(ctx, fgColor);
     // graphics_context_set_stroke_width(ctx, 1);
     // GRect mArcRect = setArcRect(px(24));
     // sweep = 16;
@@ -313,7 +316,7 @@ static void drawComplications(GContext *ctx) {
 
     if (mBattery != -1) {
         // battery ring
-        graphics_context_set_stroke_color(ctx, GColorWhite);
+        graphics_context_set_stroke_color(ctx, fgColor);
         graphics_context_set_stroke_width(ctx, 1);
         gap = 8;
         GRect mArcRect = setArcRect(px(21));
@@ -338,7 +341,7 @@ static void drawComplications(GContext *ctx) {
     }
 
     if (!pulsing) {
-        graphics_context_set_stroke_color(ctx, GColorWhite);
+        graphics_context_set_stroke_color(ctx, fgColor);
         graphics_context_set_stroke_width(ctx, px(14));
         gap = 4; // was 3 but stroke is not square?
         GRect mArcRect = setArcRect(px(34));
@@ -392,7 +395,7 @@ static void drawComplications(GContext *ctx) {
 
 static void drawOverlapping(GContext *ctx) {
     // outer ring details 3
-    graphics_context_set_stroke_color(ctx, GColorWhite);
+    graphics_context_set_stroke_color(ctx, fgColor);
     graphics_context_set_stroke_width(ctx, 1);
     float innerTickRadius = mCenterX - px(24);
     float outerTickRadius = mCenterX - px(24) + px(8);
@@ -462,13 +465,36 @@ static void health_changed() {
 }
 
 static void settings_changed() {
+    if (settings.InvertColor) {
+        fgColor = GColorBlack;
+        bgColor = GColorWhite;
+    } else {
+        fgColor = GColorWhite;
+        bgColor = GColorBlack;
+    }
+    window_set_background_color(s_window, bgColor);
+    text_layer_set_text_color(s_time_layer, fgColor);
+    text_layer_set_text_color(s_date_layer_1, fgColor);
+    text_layer_set_text_color(s_date_layer_2, fgColor);
+    text_layer_set_text_color(s_date_layer_3, fgColor);
+    text_layer_set_text_color(s_date_layer_4, fgColor);
+    text_layer_set_text_color(s_battery_layer, fgColor);
+    text_layer_set_text_color(s_step_layer, fgColor);
+    text_layer_set_text_color(s_minute_layer, fgColor);
+    text_layer_set_text_color(s_hour_layer, fgColor);
+
+    GColor *pal = gbitmap_get_palette(s_logo_bitmap);
+    pal[0] = bgColor;
+    pal[1] = fgColor;
+    gbitmap_set_palette(s_logo_bitmap, pal, false);
+
     time_init(time_changed);
     battery_init(battery_changed);
     health_init(health_changed);
 }
 
 void main_window_load(Window *window) {
-    window_set_background_color(window, GColorBlack);
+    s_window = window;
 
     Layer *window_layer = window_get_root_layer(window);
     GRect window_bounds = layer_get_bounds(window_layer);
@@ -495,13 +521,13 @@ void main_window_load(Window *window) {
 
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
     s_background_layer = bitmap_layer_create(GRect(x + mCenterX - px(65), mCenterY - px(135), px(120), px(120)));
+    bitmap_layer_set_background_color(s_background_layer, GColorClear);
     bitmap_layer_set_bitmap(s_background_layer, s_logo_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
 
     s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ALARM_CLOCK_45));
     s_time_layer = text_layer_create(GRect(x + mCenterX - px(195), mCenterY - px(35), px(400), px(139)));
     text_layer_set_background_color(s_time_layer, GColorClear);
-    text_layer_set_text_color(s_time_layer, GColorWhite);
     text_layer_set_font(s_time_layer, s_time_font);
     text_layer_set_text(s_time_layer, "00:00");
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
@@ -509,7 +535,6 @@ void main_window_load(Window *window) {
 
     s_date_layer_1 = text_layer_create(GRect(x + mCenterX - px(95) - px(45), mCenterY - px(120), px(75), px(50)));
     text_layer_set_background_color(s_date_layer_1, GColorClear);
-    text_layer_set_text_color(s_date_layer_1, GColorWhite);
     text_layer_set_font(s_date_layer_1, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_1, GTextAlignmentRight);
     text_layer_set_text(s_date_layer_1, "01");
@@ -517,7 +542,6 @@ void main_window_load(Window *window) {
 
     s_date_layer_2 = text_layer_create(GRect(x + mCenterX - px(95) - px(45), mCenterY - px(80), px(75), px(50)));
     text_layer_set_background_color(s_date_layer_2, GColorClear);
-    text_layer_set_text_color(s_date_layer_2, GColorWhite);
     text_layer_set_font(s_date_layer_2, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_2, GTextAlignmentRight);
     text_layer_set_text(s_date_layer_2, "Jan");
@@ -525,7 +549,6 @@ void main_window_load(Window *window) {
 
     s_date_layer_3 = text_layer_create(GRect(x + mCenterX + px(85) - px(35), mCenterY - px(120), px(75), px(50)));
     text_layer_set_background_color(s_date_layer_3, GColorClear);
-    text_layer_set_text_color(s_date_layer_3, GColorWhite);
     text_layer_set_font(s_date_layer_3, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_3, GTextAlignmentLeft);
     text_layer_set_text(s_date_layer_3, "Mon");
@@ -533,7 +556,6 @@ void main_window_load(Window *window) {
 
     s_date_layer_4 = text_layer_create(GRect(x + mCenterX + px(85) - px(35), mCenterY - px(80), px(85), px(50)));
     text_layer_set_background_color(s_date_layer_4, GColorClear);
-    text_layer_set_text_color(s_date_layer_4, GColorWhite);
     text_layer_set_font(s_date_layer_4, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_date_layer_4, GTextAlignmentLeft);
     text_layer_set_text(s_date_layer_4, "1970");
@@ -541,7 +563,6 @@ void main_window_load(Window *window) {
 
     s_battery_layer = text_layer_create(GRect(0, -5, window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_battery_layer, GColorClear);
-    text_layer_set_text_color(s_battery_layer, GColorWhite);
     text_layer_set_font(s_battery_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_battery_layer, GTextAlignmentRight);
     text_layer_set_text(s_battery_layer, "100%");
@@ -549,7 +570,6 @@ void main_window_load(Window *window) {
 
     s_step_layer = text_layer_create(GRect(0, window_bounds.size.h - px(50), window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_step_layer, GColorClear);
-    text_layer_set_text_color(s_step_layer, GColorWhite);
     text_layer_set_font(s_step_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_step_layer, GTextAlignmentRight);
     text_layer_set_text(s_step_layer, "5 mins");
@@ -557,7 +577,6 @@ void main_window_load(Window *window) {
 
     s_minute_layer = text_layer_create(GRect(0, window_bounds.size.h - px(50), window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_minute_layer, GColorClear);
-    text_layer_set_text_color(s_minute_layer, GColorWhite);
     text_layer_set_font(s_minute_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_minute_layer, GTextAlignmentLeft);
     text_layer_set_text(s_minute_layer, "steps 1000");
@@ -565,7 +584,6 @@ void main_window_load(Window *window) {
 
     s_hour_layer = text_layer_create(GRect(0, -5, window_bounds.size.w, px(50)));
     text_layer_set_background_color(s_hour_layer, GColorClear);
-    text_layer_set_text_color(s_hour_layer, GColorWhite);
     text_layer_set_font(s_hour_layer, fonts_get_system_font(smallFont));
     text_layer_set_text_alignment(s_hour_layer, GTextAlignmentLeft);
     text_layer_set_text(s_hour_layer, "1 hour");

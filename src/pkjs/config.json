@@ -19,6 +19,30 @@
         "messageKey": "DisplayHealth",
         "label": "Display Health",
         "defaultValue": true
+      },
+      {
+        "type": "toggle",
+        "messageKey": "InvertColor",
+        "label": "Invert Display",
+        "defaultValue": false
+      },
+      {
+        "type": "input",
+        "messageKey": "StepTarget",
+        "label": "Step Target",
+        "defaultValue": "5000"
+      },
+      {
+        "type": "input",
+        "messageKey": "MinuteTarget",
+        "label": "Minute Target",
+        "defaultValue": "20"
+      },
+      {
+        "type": "input",
+        "messageKey": "HourTarget",
+        "label": "Hour Target",
+        "defaultValue": "6"
       }
     ]
   },

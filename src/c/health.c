@@ -70,7 +70,7 @@ static void health_handler(HealthEventType event, void *context) {
 
         int steps = health_service_sum_today(HealthMetricStepCount);
         APP_LOG(APP_LOG_LEVEL_DEBUG, "steps %d", steps);
-        mSteps = value_to_percent(steps, 5000);
+        mSteps = value_to_percent(steps, settings.StepTarget);
         stepsChar[0] = '\0';
         int index = 0;
         if (steps > 1000000) {
@@ -87,14 +87,14 @@ static void health_handler(HealthEventType event, void *context) {
         hours_update();
         int hours = hours_data.hours_active;
         APP_LOG(APP_LOG_LEVEL_DEBUG, "hours %d", hours);
-        mHours = value_to_percent(hours, 6);
+        mHours = value_to_percent(hours, settings.HourTarget);
         snprintf(hoursChar, sizeof(hoursChar), "%d", hours);
 
         int minutes = 0;
         HealthActivityMask activity_mask = HealthActivityWalk | HealthActivityRun | HealthActivityOpenWorkout;
         health_service_activities_iterate(activity_mask, start_of_day, now, HealthIterationDirectionFuture, count_minutes, &minutes);
         APP_LOG(APP_LOG_LEVEL_DEBUG, "minutes %d", minutes);
-        mMinutes = value_to_percent(minutes, 20);
+        mMinutes = value_to_percent(minutes, settings.MinuteTarget);
         snprintf(minutesChar, sizeof(minutesChar), "%d", minutes);
     }
 

@@ -19,7 +19,11 @@
     "messageKeys": [
       "DisplaySeconds",
       "DisplayBattery",
-      "DisplayHealth"
+      "DisplayHealth",
+      "StepTarget",
+      "MinuteTarget",
+      "HourTarget",
+      "InvertColor"
     ],
     "targetPlatforms": [
       "diorite"
@@ -48,6 +52,7 @@
           "type": "bitmap",
           "name": "IMAGE_HOLLOW",
           "file": "images/hollow_43.png",
+          "memoryFormat": "1BitPalette",
           "targetPlatforms": [
             "diorite"
           ]

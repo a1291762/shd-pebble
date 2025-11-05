@@ -12,6 +12,10 @@ static void reset_settings() {
     settings.DisplaySeconds = true;
     settings.DisplayBattery = true;
     settings.DisplayHealth = true;
+    settings.InvertColor = false;
+    settings.StepTarget = 5000;
+    settings.MinuteTarget = 20;
+    settings.HourTarget = 6;
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -31,6 +35,26 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     if ((tuple = dict_find(iter, MESSAGE_KEY_DisplayHealth))) {
         settings.DisplayHealth = tuple->value->int32 == 1;
         APP_LOG(APP_LOG_LEVEL_DEBUG, "display health %d", settings.DisplayHealth);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_InvertColor))) {
+        settings.InvertColor = tuple->value->int32 == 1;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "invert color %d", settings.InvertColor);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_StepTarget))) {
+        settings.StepTarget = atoi(tuple->value->cstring);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "step target %d", settings.StepTarget);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_MinuteTarget))) {
+        settings.MinuteTarget = atoi(tuple->value->cstring);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "minute target %d", settings.MinuteTarget);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_HourTarget))) {
+        settings.HourTarget = atoi(tuple->value->cstring);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "hour target %d", settings.HourTarget);
     }
 
     // save to config
@@ -57,6 +81,10 @@ void settings_init(settings_changed_cb callback) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display seconds %d", settings.DisplaySeconds);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display battery %d", settings.DisplayBattery);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display health %d", settings.DisplayHealth);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "invert color %d", settings.InvertColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "step target %d", settings.StepTarget);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "minute target %d", settings.MinuteTarget);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "hour target %d", settings.HourTarget);
 
     app_message_register_inbox_received(inbox_received_handler);
 
@@ -64,6 +92,10 @@ void settings_init(settings_changed_cb callback) {
         TupletInteger(MESSAGE_KEY_DisplaySeconds, 1),
         TupletInteger(MESSAGE_KEY_DisplayBattery, 1),
         TupletInteger(MESSAGE_KEY_DisplayHealth, 1),
+        TupletInteger(MESSAGE_KEY_InvertColor, 1),
+        TupletCString(MESSAGE_KEY_StepTarget, "1000000"),
+        TupletCString(MESSAGE_KEY_MinuteTarget, "1440"),
+        TupletCString(MESSAGE_KEY_HourTarget, "24"),
     };
     uint32_t size = dict_calc_buffer_size_from_tuplets(pairs, ARRAY_LENGTH(pairs));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %u", size);
