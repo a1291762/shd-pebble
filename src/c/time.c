@@ -10,7 +10,7 @@ char s_dow[5];
 char s_year[5];
 static time_changed_cb time_changed;
 
-static void update_time(bool force) {
+static void time_update(bool force) {
     time_t temp = time(NULL);
     now = temp * 1000;
 
@@ -32,11 +32,12 @@ static void update_time(bool force) {
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-    update_time(false);
+    time_update(false);
 }
 
 void time_init(time_changed_cb callback) {
     time_deinit();
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "time_init");
 
     time_changed = callback;
 
@@ -45,11 +46,11 @@ void time_init(time_changed_cb callback) {
         units = SECOND_UNIT;
     }
     tick_timer_service_subscribe(units, tick_handler);
-    update_time(true);
+    time_update(true);
 }
 
 void time_deinit() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "time_deinit");
     time_changed = NULL;
-
     tick_timer_service_unsubscribe();
 }

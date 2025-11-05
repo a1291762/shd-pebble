@@ -7,6 +7,7 @@ void main_window_unload(Window *window);
 static Window *s_main_window;
 
 static void init() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
     s_main_window = window_create();
     window_set_window_handlers(s_main_window, (WindowHandlers) {
         .load = main_window_load,
@@ -18,6 +19,7 @@ static void init() {
 }
 
 static void deinit() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "deinit");
     window_destroy(s_main_window);
 }
 

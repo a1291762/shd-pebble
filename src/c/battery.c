@@ -21,9 +21,9 @@ static void battery_handler(BatteryChargeState charge_state) {
 
 void battery_init(battery_changed_cb callback) {
     battery_deinit();
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery_init");
 
     battery_changed = callback;
-
     mBattery = -1;
     batteryChar[0] = '\0';
 
@@ -39,7 +39,7 @@ void battery_init(battery_changed_cb callback) {
 }
 
 void battery_deinit() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery_deinit");
     battery_changed = NULL;
-
     battery_state_service_unsubscribe();
 }

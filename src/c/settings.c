@@ -8,7 +8,8 @@ static settings_changed_cb settings_changed;
 
 #define ENUM_HELPER(x) case x: return #x;
 
-static void reset_settings() {
+static void settings_reset() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_reset");
     settings.DisplaySeconds = true;
     settings.DisplayBattery = true;
     settings.DisplayHealth = true;
@@ -68,6 +69,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
 void settings_init(settings_changed_cb callback) {
     settings_deinit();
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_init");
 
     settings_changed = callback;
 
@@ -75,7 +77,7 @@ void settings_init(settings_changed_cb callback) {
     int read = persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
     // FIXME handle upgrades that expand the settings struct
     if (read == E_DOES_NOT_EXIST || read != sizeof(settings)) {
-        reset_settings();
+        settings_reset();
         persist_delete(SETTINGS_KEY);
     }
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display seconds %d", settings.DisplaySeconds);
@@ -98,7 +100,7 @@ void settings_init(settings_changed_cb callback) {
         TupletCString(MESSAGE_KEY_HourTarget, "24"),
     };
     uint32_t size = dict_calc_buffer_size_from_tuplets(pairs, ARRAY_LENGTH(pairs));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %u", size);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %lu", size);
     app_message_open(size, size);
 
     if (settings_changed) {
@@ -107,7 +109,7 @@ void settings_init(settings_changed_cb callback) {
 }
 
 void settings_deinit() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_deinit");
     settings_changed = NULL;
-
     app_message_deregister_callbacks();
 }

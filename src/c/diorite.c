@@ -348,29 +348,35 @@ static void drawComplications(GContext *ctx) {
 
         int max_sweep = 120 - gap - gap;
 
-        // hours draws from the middle out
-        angle = 90 + gap + 120 + (max_sweep/2);
-        percent = (int)(mHours * max_sweep);
-        angle -= percent / 2.0f;
-        sweep = percent;
-        if (percent) {
-            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        if (mHours != -1) {
+            // hours draws from the middle out
+            angle = 90 + gap + 120 + (max_sweep/2);
+            percent = (int)(mHours * max_sweep);
+            angle -= percent / 2.0f;
+            sweep = percent;
+            if (percent) {
+                canvas_draw_arc(ctx, mArcRect, angle, sweep);
+            }
         }
 
-        // minutes fills down
-        angle = 90 + gap + max_sweep;
-        percent = (int)(mMinutes * max_sweep);
-        sweep = -percent;
-        if (percent) {
-            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        if (mMinutes != -1) {
+            // minutes fills down
+            angle = 90 + gap + max_sweep;
+            percent = (int)(mMinutes * max_sweep);
+            sweep = -percent;
+            if (percent) {
+                canvas_draw_arc(ctx, mArcRect, angle, sweep);
+            }
         }
 
-        // steps fills up
-        angle = 90 + gap + 240;
-        percent = (int)(mSteps * max_sweep);
-        sweep = percent;
-        if (percent) {
-            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        if (mSteps != -1) {
+            // steps fills up
+            angle = 90 + gap + 240;
+            percent = (int)(mSteps * max_sweep);
+            sweep = percent;
+            if (percent) {
+                canvas_draw_arc(ctx, mArcRect, angle, sweep);
+            }
         }
     }
 

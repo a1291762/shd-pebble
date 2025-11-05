@@ -12,6 +12,8 @@ char minutesChar[9];
 
 static health_changed_cb health_changed;
 
+#ifdef PBL_HEALTH
+
 #define ENUM_HELPER(x) case x: return #x;
 
 static char *health_activity_enum(HealthActivity activity) {
@@ -103,11 +105,13 @@ static void health_handler(HealthEventType event, void *context) {
     }
 }
 
+#endif
+
 void health_init(health_changed_cb callback) {
     health_deinit();
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "health_init");
 
     health_changed = callback;
-
     mSteps = -1;
     stepsChar[0] = '\0';
     mMinutes = -1;
@@ -115,11 +119,13 @@ void health_init(health_changed_cb callback) {
     mHours = -1;
     hoursChar[0] = '\0';
 
+#ifdef PBL_HEALTH
     if (settings.DisplayHealth) {
         health_service_events_subscribe(health_handler, NULL);
     } else {
         hours_delete();
     }
+#endif
 
     if (health_changed) {
         health_changed();
@@ -127,7 +133,9 @@ void health_init(health_changed_cb callback) {
 }
 
 void health_deinit() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "health_deinit");
     health_changed = NULL;
-
+#ifdef PBL_HEALTH
     health_service_events_unsubscribe();
+#endif
 }

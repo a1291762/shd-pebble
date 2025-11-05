@@ -6,12 +6,14 @@
 struct HoursData hours_data = {0, 0, 0};
 
 static void hours_reset() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "hours_reset");
     hours_data.day_start = time_start_of_today();
     hours_data.hours_counted = 0;
     hours_data.hours_active = 0;
 }
 
 void hours_update() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "hours_update");
     time_t now = time(NULL);
     time_t start_of_hour = now / 3600 * 3600;
     time_t start_of_day = time_start_of_today();
@@ -67,6 +69,7 @@ void hours_update() {
 
 void hours_delete() {
     hours_reset();
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "hours_delete");
     hours_data.day_start = 0;
     persist_delete(HOURS_KEY);
 }
