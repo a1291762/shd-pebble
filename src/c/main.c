@@ -1,8 +1,6 @@
 #include <pebble.h>
 #include "settings.h"
-
-void main_window_load(Window *window);
-void main_window_unload(Window *window);
+#include "window.h"
 
 static Window *s_main_window;
 
