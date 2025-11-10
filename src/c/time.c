@@ -27,7 +27,7 @@ static void time_update(bool force) {
     }
 
     if (time_changed) {
-        time_changed(updateall);
+        time_changed(force);
     }
 }
 

@@ -1,20 +1,15 @@
 #include <pebble.h>
-#include "settings.h"
 #include "math.h"
 #include "battery.h"
 #include "time.h"
 #include "health.h"
-#include "window.h"
 #include "canvas.h"
 #include "palette.h"
 
-// static BitmapLayer *s_logo_layer;
-// static GBitmap *s_logo_bitmap;
-// static Layer *s_draw_layer;
+static GBitmap *s_logo_bitmap;
 static bool pulsing = false;
 static bool mAmbient = false;
 static bool showOnlyAnims = false;
-//static char *smallFont = FONT_KEY_GOTHIC_18_BOLD;
 
 static void drawCircleBackground(GContext *ctx) {
     graphics_context_set_fill_color(ctx, bgColor);
@@ -256,93 +251,9 @@ static void drawComplexBackground(GContext *ctx) {
 //     }
 // }
 
-static void drawComplications(GContext *ctx) {
-    int gap;
-    float angle, sweep, percent;
-
-    if (mBattery != -1) {
-        // battery ring
-        graphics_context_set_stroke_color(ctx, PBL_IF_COLOR_ELSE(GColorGreen, fgColor));
-        graphics_context_set_stroke_width(ctx, 1);
-        gap = PBL_IF_ROUND_ELSE(8, 0);
-        GRect mArcRect = setArcRect(px(21));
-        angle = 270 - gap;
-        sweep = (360 - gap - gap) * (mBattery / 100.0f);
-        angle -= sweep;
-        canvas_draw_arc(ctx, mArcRect, angle, sweep);
-
-        // // battery percent
-        // int percent2 = mBattery;
-        // char batteryChar[5] = {0};
-        // batteryChar[0] = percent2 == 100 ? '1' : ' ';
-        // batteryChar[1] = percent2 >= 10 ? (char)(((percent2 % 100) / 10) + (int)'0') : ' ';
-        // batteryChar[2] = (char)((percent2 % 10) + (int)'0');
-        // batteryChar[3] = '%';
-        // // canvas.drawText(batteryChar, 0, 4, canvas_center_x + 4, 20, mBatteryPercentPaint);
-        // graphics_draw_text(ctx, batteryChar, font, box, overflow_mode, alignment, attributes);
-
-        // if (mBatteryIcon != null) {
-        //     canvas.drawBitmap(mBatteryIcon, null, mBatteryIconBounds, mIconPaint);
-        // }
-    }
-
-    if (!pulsing) {
-        graphics_context_set_stroke_color(ctx, PBL_IF_COLOR_ELSE(GColorOrange, fgColor));
-        graphics_context_set_stroke_width(ctx, px(14));
-        gap = 4; // was 3 but stroke is not square?
-        GRect mArcRect = setArcRect(px(34));
-
-        int max_sweep = 120 - gap - gap;
-
-        if (mHours != -1) {
-            // hours draws from the middle out
-            angle = 90 + gap + 120 + (max_sweep/2);
-            percent = (int)(mHours * max_sweep);
-            angle -= percent / 2.0f;
-            sweep = percent;
-            if (percent) {
-                canvas_draw_arc(ctx, mArcRect, angle, sweep);
-            }
-        }
-
-        if (mMinutes != -1) {
-            // minutes fills down
-            angle = 90 + gap + max_sweep;
-            percent = (int)(mMinutes * max_sweep);
-            sweep = -percent;
-            if (percent) {
-                canvas_draw_arc(ctx, mArcRect, angle, sweep);
-            }
-        }
-
-        if (mSteps != -1) {
-            // steps fills up
-            angle = 90 + gap + 240;
-            percent = (int)(mSteps * max_sweep);
-            sweep = percent;
-            if (percent) {
-                canvas_draw_arc(ctx, mArcRect, angle, sweep);
-            }
-        }
-    }
-
-//     // complication icons also draw when pulsing
-//     if (mHoursIcon != null) {
-//         canvas.drawBitmap(mHoursIcon, null, mHoursIconBounds, mIconPaint);
-//     }
-//     if (mMinutesIcon != null) {
-//         canvas.drawBitmap(mMinutesIcon, null, mMinutesIconBounds, mIconPaint);
-//     }
-//     if (mStepsIcon != null) {
-//         canvas.drawBitmap(mStepsIcon, null, mStepsIconBounds, mIconPaint);
-//     }
-
-//     // For WearOS 2, show the music icon when music is playing
-//     // For WearOS 3, the system shows an icon here when music is playing
-//     if (!isWearOS3 && !mMusicCurrent.isEmpty()) {
-//         // This icon is identified by mMusicTapBounds
-//         canvas.drawText(MUSIC, canvas_center_x, canvas_center_y + px(170), mIconPaint);
-//     }
+static void drawForeground(GContext *ctx) {
+    GRect bounds = gbitmap_get_bounds(s_logo_bitmap);
+    graphics_draw_bitmap_in_rect(ctx, s_logo_bitmap, GRect(canvas_center_x - bounds.size.w / 2 - px(10), px(55), bounds.size.w, bounds.size.h));
 }
 
 // static void drawOverlapping(GContext *ctx) {
@@ -373,6 +284,7 @@ static void drawComplications(GContext *ctx) {
 // }
 
 void background_layer_update_proc(Layer *layer, GContext *ctx) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "update background layer");
     // background (circle)
     drawCircleBackground(ctx);
 
@@ -386,14 +298,27 @@ void background_layer_update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (!showOnlyAnims) {
-        // battery band, outer band
-        drawComplications(ctx);
         // date, time, notifications
-        // drawForeground(ctx);
+        drawForeground(ctx);
     }
 
-    if (!mAmbient) {
-        // outer details
-        // drawOverlapping(ctx);
-    }
+    // if (!mAmbient) {
+    //     // outer details
+    //     drawOverlapping(ctx);
+    // }
+}
+
+void background_settings_changed() {
+    GColor *pal = gbitmap_get_palette(s_logo_bitmap);
+    pal[0] = bgColor;
+    pal[1] = fgColor;
+    gbitmap_set_palette(s_logo_bitmap, pal, false);
+}
+
+void background_init() {
+    s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
+}
+
+void background_deinit() {
+    gbitmap_destroy(s_logo_bitmap);
 }
