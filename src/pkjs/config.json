@@ -6,7 +6,7 @@
         "type": "toggle",
         "messageKey": "DisplaySeconds",
         "label": "Display Seconds",
-        "defaultValue": true
+        "defaultValue": false
       },
       {
         "type": "toggle",
@@ -24,7 +24,7 @@
         "type": "toggle",
         "messageKey": "InvertColor",
         "label": "Invert Display",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "type": "input",

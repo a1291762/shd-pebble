@@ -4,10 +4,15 @@
 #include "time.h"
 #include "palette.h"
 #include "battery.h"
+#include "settings.h"
 
 static bool showOnlyAnims = false;
 
 void seconds_layer_update_proc(Layer *layer, GContext *ctx) {
+    if (!settings.DisplaySeconds) {
+        return;
+    }
+
     APP_LOG(APP_LOG_LEVEL_DEBUG, "update seconds layer");
     // ticks
     int ticks = 60;

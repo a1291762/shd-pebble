@@ -9,10 +9,10 @@ static settings_changed_cb settings_changed;
 
 static void settings_reset() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_reset");
-    settings.DisplaySeconds = true;
+    settings.DisplaySeconds = false;
     settings.DisplayBattery = true;
     settings.DisplayHealth = true;
-    settings.InvertColor = false;
+    settings.InvertColor = true;
     settings.StepTarget = 5000;
     settings.MinuteTarget = 20;
     settings.HourTarget = 6;
