@@ -37,6 +37,14 @@ void canvas_draw_line(GContext *ctx, int x1, int y1, int x2, int y2) {
     graphics_draw_line(ctx, GPoint(x1, y1), GPoint(x2, y2));
 }
 
+void canvas_draw_text(GContext *ctx, char *string, GFont font, GPoint pos, GTextAlignment alignment) {
+    GTextOverflowMode overflow_mode = GTextOverflowModeWordWrap;
+    GRect box = GRect(pos.x, pos.y, 100, 100);
+    GSize textSize = graphics_text_layout_get_content_size(string, font, box, overflow_mode, GTextAlignmentLeft);
+    box.size = textSize;
+    graphics_draw_text(ctx, string, font, box, overflow_mode, alignment, NULL);
+}
+
 void canvas_init(GRect window_bounds) {
     int x = window_bounds.origin.x;
     int y = window_bounds.origin.y;

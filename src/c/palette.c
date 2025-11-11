@@ -3,6 +3,8 @@
 
 GColor fgColor;
 GColor bgColor;
+GColor outerRingColor;
+GColor batteryRingColor;
 
 void palette_init() {
     if (settings.InvertColor) {
@@ -12,4 +14,6 @@ void palette_init() {
         fgColor = GColorWhite;
         bgColor = GColorBlack;
     }
+    outerRingColor = PBL_IF_COLOR_ELSE(GColorOrange, fgColor);
+    batteryRingColor = PBL_IF_COLOR_ELSE(GColorGreen, fgColor);
 }
