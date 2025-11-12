@@ -76,22 +76,28 @@ void geometry_date() {
 void geometry_battery() {
     GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     // why is there extra space above the text???
-    const int vfudge = textSize.h * 0.2;
-    // don't hit the edge of the screen
-    const int hfudge = px(8);
-    int w = screen_center_x * 2;
-    mBatteryBounds = GRect(0, -vfudge, w - hfudge, 100);
+    const int vfudge = textSize.h * 0.3;
+    PBL_IF_ROUND_ELSE({
+        mBatteryBounds = GRect(canvas_center_x - textSize.w/2, -vfudge, textSize.w, textSize.h);
+    }, {
+        // don't hit the edge of the screen
+        const int hfudge = px(8);
+        int w = screen_center_x * 2;
+        mBatteryBounds = GRect(0, -vfudge, w - hfudge, 100);
+    });
 }
 
 void geometry_health() {
-    GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
-    // why is there extra space above the text???
-    const int vfudge = textSize.h * 0.2;
-    // don't hit the edge of the screen
-    const int hfudge = px(8);
-    int w = screen_center_x * 2;
-    int y = screen_center_y*2 - textSize.h - vfudge;
-    mStepsBounds = GRect(0, y, w - hfudge, 100);
-    mMinutesBounds = GRect(hfudge, y, w, 100);
-    mHoursBounds = GRect(hfudge, -vfudge, w, 100);
+    PBL_IF_RECT_ELSE({
+        GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+        // why is there extra space above the text???
+        const int vfudge = textSize.h * 0.2;
+        // don't hit the edge of the screen
+        const int hfudge = px(8);
+        int w = screen_center_x * 2;
+        int y = screen_center_y*2 - textSize.h - vfudge;
+        mStepsBounds = GRect(0, y, w - hfudge, 100);
+        mMinutesBounds = GRect(hfudge, y, w, 100);
+        mHoursBounds = GRect(hfudge, -vfudge, w, 100);
+    }, {});
 }

@@ -333,19 +333,11 @@ static void drawComplications(GContext *ctx) {
         angle -= sweep;
         canvas_draw_arc(ctx, mArcRect, angle, sweep);
 
-        // // battery percent
-        // int percent2 = mBattery;
-        // char batteryChar[5] = {0};
-        // batteryChar[0] = percent2 == 100 ? '1' : ' ';
-        // batteryChar[1] = percent2 >= 10 ? (char)(((percent2 % 100) / 10) + (int)'0') : ' ';
-        // batteryChar[2] = (char)((percent2 % 10) + (int)'0');
-        // batteryChar[3] = '%';
-        // // canvas.drawText(batteryChar, 0, 4, canvas_center_x + 4, 20, mBatteryPercentPaint);
-        // graphics_draw_text(ctx, batteryChar, font, box, overflow_mode, alignment, attributes);
-
-        // if (mBatteryIcon != null) {
-        //     canvas.drawBitmap(mBatteryIcon, null, mBatteryIconBounds, mIconPaint);
-        // }
+        // battery percent
+        PBL_IF_ROUND_ELSE(({
+            graphics_context_set_text_color(ctx, fgColor);
+            canvas_draw_text(ctx, batteryChar, s_date_font, mBatteryBounds, GTextAlignmentCenter);
+        }), {});
     }
 
     if (!pulsing) {
