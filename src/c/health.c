@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "hours.h"
 #include "keys.h"
+#include "geometry.h"
 
 float mSteps;
 char stepsChar[12];
@@ -99,6 +100,8 @@ static void health_handler(HealthEventType event, void *context) {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "minutes %d", minutes);
         mMinutes = value_to_percent(minutes, settings.MinuteTarget);
         snprintf(minutesChar, sizeof(minutesChar), "%d", minutes);
+
+        geometry_health();
     }
 
     if (health_changed) {

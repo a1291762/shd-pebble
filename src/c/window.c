@@ -8,6 +8,7 @@
 #include "canvas.h"
 #include "face.h"
 #include "palette.h"
+#include "ext.h"
 
 static Window *s_window;
 static Layer *s_face_layer;
@@ -59,8 +60,9 @@ void main_window_load(Window *window) {
 
     // on rect watches, this layer matches the screen
     s_ext_layer = layer_create(window_bounds);
-    //layer_set_update_proc(s_ext_layer, ext_layer_update_proc);
+    layer_set_update_proc(s_ext_layer, ext_layer_update_proc);
     layer_add_child(window_layer, s_ext_layer);
+    ext_layer_init();
 
     // s_battery_layer = text_layer_create(PBL_IF_ROUND_ELSE(GRect(canvas_center_x - px(40), canvas_center_y - px(205), px(90), px(40)),
     //                                                       GRect(0, -5, window_bounds.size.w, px(50))));

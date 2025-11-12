@@ -1,11 +1,12 @@
 #include <pebble.h>
 #include "settings.h"
 
-GColor windowColor;
 GColor fgColor;
 GColor bgColor;
 GColor outerRingColor;
 GColor batteryRingColor;
+GColor windowColor;
+GColor extColor;
 
 void palette_init() {
     if (settings.InvertColor) {
@@ -17,8 +18,10 @@ void palette_init() {
     }
     if (settings.PartialInvert) {
         windowColor = fgColor;
+        extColor = bgColor;
     } else {
         windowColor = bgColor;
+        extColor = fgColor;
     }
     outerRingColor = PBL_IF_COLOR_ELSE(GColorOrange, fgColor);
     batteryRingColor = PBL_IF_COLOR_ELSE(GColorGreen, fgColor);

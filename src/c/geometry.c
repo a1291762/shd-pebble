@@ -9,6 +9,10 @@ GRect mLogoBounds;
 GRect mTimeBounds[5];
 static GFont s_date_font;
 GRect mDateBounds[4];
+GRect mBatteryBounds;
+GRect mStepsBounds;
+GRect mMinutesBounds;
+GRect mHoursBounds;
 
 void geometry_init(GBitmap *logo_bitmap, GFont time_font, GFont date_font) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "geometry init");
@@ -67,4 +71,27 @@ void geometry_date() {
     GSize yearSize = graphics_text_layout_get_content_size(s_year, s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     mDateBounds[2] = GRect(x2, y1, dowSize.w, dowSize.h);
     mDateBounds[3] = GRect(x2, y2, yearSize.w, yearSize.h);
+}
+
+void geometry_battery() {
+    GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    // why is there extra space above the text???
+    const int vfudge = textSize.h * 0.2;
+    // don't hit the edge of the screen
+    const int hfudge = px(8);
+    int w = screen_center_x * 2;
+    mBatteryBounds = GRect(0, -vfudge, w - hfudge, 100);
+}
+
+void geometry_health() {
+    GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    // why is there extra space above the text???
+    const int vfudge = textSize.h * 0.2;
+    // don't hit the edge of the screen
+    const int hfudge = px(8);
+    int w = screen_center_x * 2;
+    int y = screen_center_y*2 - textSize.h - vfudge;
+    mStepsBounds = GRect(0, y, w - hfudge, 100);
+    mMinutesBounds = GRect(hfudge, y, w, 100);
+    mHoursBounds = GRect(hfudge, -vfudge, w, 100);
 }
