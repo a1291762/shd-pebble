@@ -13,6 +13,7 @@ static void settings_reset() {
     settings.DisplayBattery = true;
     settings.DisplayHealth = true;
     settings.InvertColor = true;
+    settings.PartialInvert = false;
     settings.StepTarget = 5000;
     settings.MinuteTarget = 20;
     settings.HourTarget = 6;
@@ -40,6 +41,11 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     if ((tuple = dict_find(iter, MESSAGE_KEY_InvertColor))) {
         settings.InvertColor = tuple->value->int32 == 1;
         APP_LOG(APP_LOG_LEVEL_DEBUG, "invert color %d", settings.InvertColor);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_PartialInvert))) {
+        settings.PartialInvert = tuple->value->int32 == 1;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "partial invert %d", settings.PartialInvert);
     }
 
     if ((tuple = dict_find(iter, MESSAGE_KEY_StepTarget))) {
@@ -83,6 +89,7 @@ void settings_init(settings_changed_cb callback) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display battery %d", settings.DisplayBattery);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display health %d", settings.DisplayHealth);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "invert color %d", settings.InvertColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "partial invert %d", settings.PartialInvert);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "step target %d", settings.StepTarget);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "minute target %d", settings.MinuteTarget);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "hour target %d", settings.HourTarget);
@@ -94,6 +101,7 @@ void settings_init(settings_changed_cb callback) {
         TupletInteger(MESSAGE_KEY_DisplayBattery, 1),
         TupletInteger(MESSAGE_KEY_DisplayHealth, 1),
         TupletInteger(MESSAGE_KEY_InvertColor, 1),
+        TupletInteger(MESSAGE_KEY_PartialInvert, 1),
         TupletCString(MESSAGE_KEY_StepTarget, "1000000"),
         TupletCString(MESSAGE_KEY_MinuteTarget, "1440"),
         TupletCString(MESSAGE_KEY_HourTarget, "24"),

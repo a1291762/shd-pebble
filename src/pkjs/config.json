@@ -27,6 +27,12 @@
         "defaultValue": true
       },
       {
+        "type": "toggle",
+        "messageKey": "PartialInvert",
+        "label": "Circular Display",
+        "defaultValue": false
+      },
+      {
         "type": "input",
         "messageKey": "StepTarget",
         "label": "Step Target",

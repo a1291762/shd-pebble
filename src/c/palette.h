@@ -1,5 +1,6 @@
 #pragma once
 
+extern GColor windowColor;
 extern GColor fgColor;
 extern GColor bgColor;
 extern GColor outerRingColor;

@@ -5,6 +5,7 @@ struct Settings {
     bool DisplayBattery;
     bool DisplayHealth;
     bool InvertColor;
+    bool PartialInvert;
     int StepTarget;
     int MinuteTarget;
     int HourTarget;

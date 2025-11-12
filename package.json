@@ -23,7 +23,8 @@
       "StepTarget",
       "MinuteTarget",
       "HourTarget",
-      "InvertColor"
+      "InvertColor",
+      "PartialInvert"
     ],
     "targetPlatforms": [
       "aplite",

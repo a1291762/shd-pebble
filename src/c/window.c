@@ -36,6 +36,7 @@ static void health_changed() {
 
 static void settings_changed() {
     palette_init();
+    window_set_background_color(s_window, windowColor);
     face_layer_settings_changed();
 
     time_init(time_changed);
@@ -45,7 +46,6 @@ static void settings_changed() {
 
 void main_window_load(Window *window) {
     s_window = window;
-    window_set_background_color(s_window, GColorBlack);
 
     Layer *window_layer = window_get_root_layer(window);
     GRect window_bounds = layer_get_bounds(window_layer);
