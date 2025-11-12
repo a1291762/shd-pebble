@@ -5,10 +5,12 @@
 #include "health.h"
 #include "canvas.h"
 #include "palette.h"
+#include "geometry.h"
+#include "settings.h"
 
 static GBitmap *s_logo_bitmap;
 static GFont s_time_font;
-static char *smallFont = FONT_KEY_GOTHIC_18_BOLD;
+static GFont s_date_font;
 
 static bool pulsing = false;
 static bool mAmbient = false;
@@ -50,43 +52,30 @@ static void drawSimpleBackground(GContext *ctx) {
 }
 
 static void drawComplexBackground(GContext *ctx) {
+    bool showAllTicks = PBL_IF_ROUND_ELSE(false, true);
+    const int skipped_ticks = 1;
+
     // ticks
-    int ticks = 60;
     graphics_context_set_stroke_color(ctx, fgColor);
     graphics_context_set_stroke_width(ctx, 1); //px(2)
-    float outerTickRadius = canvas_center_x - px(5);
-    float innerTickRadius = canvas_center_x - px(15);
-    float one = CIRCLE / (float)ticks;
-
-    for (int tickIndex = 0; tickIndex < ticks; tickIndex++) {
-        float tickRot = (one * tickIndex);
-        // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickIndex %d", tickIndex);
-        // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickRot %d.%03d", (int)tickRot, (int)(tickRot*1000)%1000);
-        float tick_innerX = math_sin(tickRot) * innerTickRadius;
-        float tick_innerY = -math_cos(tickRot) * innerTickRadius;
-        float tick_outerX = math_sin(tickRot) * outerTickRadius;
-        float tick_outerY = -math_cos(tickRot) * outerTickRadius;
-        bool showAllTicks = PBL_IF_ROUND_ELSE(false, true);
-        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickIndex > 1 && tickIndex < (ticks - 1))) {
-            canvas_draw_line(ctx, canvas_center_x + tick_innerX, canvas_center_y + tick_innerY,
-                    canvas_center_x + tick_outerX, canvas_center_y + tick_outerY);
+    for (int tickIndex = 0; tickIndex < tick_count; tickIndex++) {
+        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
+            struct Tick *tick = &mTicks[tickIndex];
+            canvas_draw_line(ctx, canvas_center_x + tick->innerX, canvas_center_y + tick->innerY,
+                canvas_center_x + tick->outerX, canvas_center_y + tick->outerY);
         }
     }
 
-    // active tick
-    graphics_context_set_stroke_color(ctx, fgColor);
-    graphics_context_set_stroke_width(ctx, 2);
-    int tickOffset = (int)((now % 60000) / 1000) * (ticks/60);
-    bool showAllTicks = PBL_IF_ROUND_ELSE(false, true);
-    if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickOffset > 1 && tickOffset < (ticks - 1))) {
-        float tickRot = one * tickOffset;
-        // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickOffset %d", tickOffset);
-        // APP_LOG(APP_LOG_LEVEL_DEBUG, "tickRot %d.%03d", (int)tickRot, (int)(tickRot*1000)%1000);
-        float innerX = math_sin(tickRot) * innerTickRadius;
-        float innerY = -math_cos(tickRot) * innerTickRadius;
-        float outerX = math_sin(tickRot) * outerTickRadius;
-        float outerY = -math_cos(tickRot) * outerTickRadius;
-        canvas_draw_line(ctx, canvas_center_x + innerX, canvas_center_y + innerY, canvas_center_x + outerX, canvas_center_y + outerY);
+    if (settings.DisplaySeconds) {
+        // active tick
+        graphics_context_set_stroke_color(ctx, fgColor);
+        graphics_context_set_stroke_width(ctx, 2);
+        int tickIndex = (int)((now % 60000) / 1000) * (tick_count / 60);
+        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
+            struct Tick *tick = &mTicks[tickIndex];
+            canvas_draw_line(ctx, canvas_center_x + tick->innerX, canvas_center_y + tick->innerY,
+                canvas_center_x + tick->outerX, canvas_center_y + tick->outerY);
+        }
     }
 
     // not enough pixels for this?
@@ -271,60 +260,35 @@ static void drawComplexBackground(GContext *ctx) {
 // }
 
 static void drawForeground(GContext *ctx) {
-    GRect bounds = gbitmap_get_bounds(s_logo_bitmap);
-    graphics_draw_bitmap_in_rect(ctx, s_logo_bitmap, GRect(canvas_center_x - bounds.size.w / 2 - px(10), px(55), bounds.size.w, bounds.size.h));
+    graphics_draw_bitmap_in_rect(ctx, s_logo_bitmap, mLogoBounds);
 
     // date
-    GFont date_font = fonts_get_system_font(smallFont);
-    float x1 = px(55);
-    float y = px(70);
-    float y2 = y + px(30);
-
     graphics_context_set_text_color(ctx, fgColor);
-    if (s_day[0] == '0') {
-        s_day[0] = ' ';
-    }
-    canvas_draw_text(ctx, s_day, date_font, GPoint(x1, y), GTextAlignmentRight);
-    canvas_draw_text(ctx, s_mon, date_font, GPoint(x1, y2), GTextAlignmentRight);
-
-    x1 = canvas_center_x + px(45);
-    canvas_draw_text(ctx, s_dow, date_font, GPoint(x1, y), GTextAlignmentLeft);
-    canvas_draw_text(ctx, s_year, date_font, GPoint(x1, y2), GTextAlignmentLeft);
-
-    GTextOverflowMode overflow_mode = GTextOverflowModeWordWrap;
-    GTextAlignment alignment = GTextAlignmentLeft;
-    GSize textSize = graphics_text_layout_get_content_size("8", s_time_font, GRect(0, 0, 100, 100), overflow_mode, alignment);
-    float digitWidth = textSize.w;
-    x1 = canvas_center_x - 2.1*digitWidth;
-    float x2 = x1 + 3.5*digitWidth;
-    y = canvas_center_y - digitWidth * 0.7;
-    float t1 = x1;
-    float t2 = x1 + digitWidth;
-    float t3 = x2 - digitWidth;
-    float t4 = x2;
-    float t5 = x1 + 2*digitWidth;
+    canvas_draw_text(ctx, s_day, s_date_font, mDateBounds[0], GTextAlignmentRight);
+    canvas_draw_text(ctx, s_mon, s_date_font, mDateBounds[1], GTextAlignmentRight);
+    canvas_draw_text(ctx, s_dow, s_date_font, mDateBounds[2], GTextAlignmentLeft);
+    canvas_draw_text(ctx, s_year, s_date_font, mDateBounds[3], GTextAlignmentLeft);
 
     // // time background
-    // graphics_context_set_text_color(ctx, fgColor);
-    // graphics_draw_text(ctx, "8", s_time_font, GRect(t1, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
-    // graphics_draw_text(ctx, "8", s_time_font, GRect(t2, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
-    // graphics_draw_text(ctx, "8", s_time_font, GRect(t3, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
-    // graphics_draw_text(ctx, "8", s_time_font, GRect(t4, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
+    // graphics_context_set_text_color(ctx, bgColor);
+    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[0], GTextAlignmentLeft);
+    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[1], GTextAlignmentLeft);
+    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[3], GTextAlignmentLeft);
+    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[4], GTextAlignmentLeft);
 
     // time foreground
     graphics_context_set_text_color(ctx, fgColor);
     char timeChar[2] = {0};
-    if (s_time[0] != ' ') {
-        timeChar[0] = s_time[0];
-        graphics_draw_text(ctx, timeChar, s_time_font, GRect(t1, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
-    }
+    timeChar[0] = s_time[0];
+    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[0], GTextAlignmentLeft);
     timeChar[0] = s_time[1];
-    graphics_draw_text(ctx, timeChar, s_time_font, GRect(t2, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
+    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[1], GTextAlignmentLeft);
+    timeChar[0] = s_time[2];
+    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[2], GTextAlignmentLeft);
     timeChar[0] = s_time[3];
-    graphics_draw_text(ctx, timeChar, s_time_font, GRect(t3, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
+    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[3], GTextAlignmentLeft);
     timeChar[0] = s_time[4];
-    graphics_draw_text(ctx, timeChar, s_time_font, GRect(t4, y, digitWidth*2, digitWidth), overflow_mode, alignment, NULL);
-    graphics_draw_text(ctx, ":", s_time_font, GRect(t5, y, digitWidth*1.5, digitWidth), overflow_mode, alignment, NULL);
+    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[4], GTextAlignmentLeft);
 }
 
 // static void drawOverlapping(GContext *ctx) {
@@ -444,7 +408,7 @@ static void drawComplications(GContext *ctx) {
 }
 
 void face_layer_update_proc(Layer *layer, GContext *ctx) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "update background layer");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "update face layer");
     // background (circle)
     drawCircleBackground(ctx);
 
@@ -470,6 +434,7 @@ void face_layer_update_proc(Layer *layer, GContext *ctx) {
 }
 
 void face_layer_settings_changed() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "face layer settings changed");
     GColor *pal = gbitmap_get_palette(s_logo_bitmap);
     pal[0] = bgColor;
     pal[1] = fgColor;
@@ -477,6 +442,7 @@ void face_layer_settings_changed() {
 }
 
 void face_layer_init() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "face layer init");
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
 #if PBL_DISPLAY_HEIGHT >= 180
     int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_50;
@@ -484,9 +450,12 @@ void face_layer_init() {
     int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_45;
 #endif
     s_time_font = fonts_load_custom_font(resource_get_handle(alarm_clock_font));
+    s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+    geometry_init(s_logo_bitmap, s_time_font, s_date_font);
 }
 
 void face_layer_deinit() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "face layer deinit");
     gbitmap_destroy(s_logo_bitmap);
     fonts_unload_custom_font(s_time_font);
 }

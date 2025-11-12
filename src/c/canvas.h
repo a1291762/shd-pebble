@@ -14,5 +14,5 @@ float px(float px);
 GRect setArcRect(float topleft);
 void canvas_draw_arc(GContext *ctx, GRect rect, int32_t angle_start, int32_t angle_sweep);
 void canvas_draw_line(GContext *ctx, int x1, int y1, int x2, int y2);
-void canvas_draw_text(GContext *ctx, char *string, GFont font, GPoint pos, GTextAlignment alignment);
+void canvas_draw_text(GContext *ctx, char *string, GFont font, GRect box, GTextAlignment alignment);
 void canvas_init(GRect window_bounds);

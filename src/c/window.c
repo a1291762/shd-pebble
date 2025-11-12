@@ -19,7 +19,7 @@ static Layer *s_ext_layer;
 // static TextLayer *s_hour_layer;
 // static char *smallFont = FONT_KEY_GOTHIC_18_BOLD;
 
-static void time_changed(bool updateall) {
+static void time_changed() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "time_changed");
     layer_mark_dirty(s_face_layer);
 }
@@ -36,7 +36,6 @@ static void health_changed() {
 
 static void settings_changed() {
     palette_init();
-    window_set_background_color(s_window, GColorBlack);
     face_layer_settings_changed();
 
     time_init(time_changed);
@@ -46,6 +45,7 @@ static void settings_changed() {
 
 void main_window_load(Window *window) {
     s_window = window;
+    window_set_background_color(s_window, GColorBlack);
 
     Layer *window_layer = window_get_root_layer(window);
     GRect window_bounds = layer_get_bounds(window_layer);

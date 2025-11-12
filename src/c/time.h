@@ -7,7 +7,7 @@ extern char s_mon[];
 extern char s_dow[];
 extern char s_year[];
 
-typedef void (*time_changed_cb)(bool updateall);
+typedef void (*time_changed_cb)();
 
 void time_init(time_changed_cb callback);
 void time_deinit();
