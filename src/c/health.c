@@ -124,7 +124,7 @@ void health_init(health_changed_cb callback) {
     if (settings.DisplayHealth) {
         health_service_events_subscribe(health_handler, NULL);
         // probe for initial health status
-        health_handler(HealthEventSignificantUpdate, NULL);
+        // health_handler(HealthEventSignificantUpdate, NULL);
     } else {
         hours_delete();
     }

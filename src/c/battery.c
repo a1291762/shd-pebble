@@ -30,7 +30,7 @@ void battery_init(battery_changed_cb callback) {
     if (settings.DisplayBattery) {
         battery_state_service_subscribe(battery_handler);
         // probe for initial battery state
-        battery_handler(battery_state_service_peek());
+        // battery_handler(battery_state_service_peek());
     }
 
     if (battery_changed) {
