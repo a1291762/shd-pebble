@@ -32,7 +32,6 @@ static void health_changed() {
 static void settings_changed() {
     palette_init();
     window_set_background_color(s_window, windowColor);
-    face_layer_settings_changed();
 
     time_init(time_changed);
     battery_init(battery_changed);
@@ -57,7 +56,6 @@ void main_window_load(Window *window) {
         s_ext_layer = layer_create(window_bounds);
         layer_set_update_proc(s_ext_layer, ext_layer_update_proc);
         layer_add_child(window_layer, s_ext_layer);
-        ext_layer_init();
     }, {});
 
     settings_init(settings_changed);

@@ -3,18 +3,18 @@
 #include "canvas.h"
 #include "math.h"
 #include "time.h"
+#include "resources.h"
 
 struct Tick mTicks[tick_count];
 GRect mLogoBounds;
 GRect mTimeBounds[5];
-static GFont s_date_font;
 GRect mDateBounds[4];
 GRect mBatteryBounds;
 GRect mStepsBounds;
 GRect mMinutesBounds;
 GRect mHoursBounds;
 
-void geometry_init(GBitmap *logo_bitmap, GFont time_font, GFont date_font) {
+void geometry_init() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
     // ticks
@@ -30,9 +30,9 @@ void geometry_init(GBitmap *logo_bitmap, GFont time_font, GFont date_font) {
         mTicks[tickIndex].outerY = -math_cos(tickRot) * outerTickRadius;
     }
 
-    // logo
+    // logo - shifted slightly left
     GRect bitmap_bounds = gbitmap_get_bounds(logo_bitmap);
-    mLogoBounds = GRect(canvas_center_x - bitmap_bounds.size.w / 2 - px(10), px(55),
+    mLogoBounds = GRect(canvas_center_x - bitmap_bounds.size.w / 2 - 3, px(65),
         bitmap_bounds.size.w, bitmap_bounds.size.h);
 
     // time
@@ -47,9 +47,6 @@ void geometry_init(GBitmap *logo_bitmap, GFont time_font, GFont date_font) {
     mTimeBounds[2] = GRect(x1 + 2 * digitWidth, y, digitWidth, digitHeight);
     mTimeBounds[3] = GRect(x2 - digitWidth, y, digitWidth, digitHeight);
     mTimeBounds[4] = GRect(x2, y, digitWidth, digitHeight);
-
-    // date
-    s_date_font = date_font;
 }
 
 void geometry_date() {
@@ -57,18 +54,23 @@ void geometry_date() {
     
     // date
     float x1 = canvas_center_x - px(64);
-    float x2 = canvas_center_x + px(45);
+    float x2 = canvas_center_x + px(50);
+#if PBL_DISPLAY_HEIGHT >= 180
+    float y1 = px(70);
+    float y2 = y1 + px(40);
+#else
     float y1 = px(80);
     float y2 = y1 + px(35);
+#endif
 
-    GSize daySize = graphics_text_layout_get_content_size(s_day, s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
-    GSize monSize = graphics_text_layout_get_content_size(s_mon, s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    GSize daySize = graphics_text_layout_get_content_size(s_day, date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    GSize monSize = graphics_text_layout_get_content_size(s_mon, date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     int leftWidth = daySize.w > monSize.w ? daySize.w : monSize.w;
     x1 -= leftWidth;
     mDateBounds[0] = GRect(x1, y1, leftWidth, daySize.h);
     mDateBounds[1] = GRect(x1, y2, leftWidth, monSize.h);
-    GSize dowSize = graphics_text_layout_get_content_size(s_dow, s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
-    GSize yearSize = graphics_text_layout_get_content_size(s_year, s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    GSize dowSize = graphics_text_layout_get_content_size(s_dow, date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    GSize yearSize = graphics_text_layout_get_content_size(s_year, date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     mDateBounds[2] = GRect(x2, y1, dowSize.w, dowSize.h);
     mDateBounds[3] = GRect(x2, y2, yearSize.w, yearSize.h);
 }
@@ -76,7 +78,7 @@ void geometry_date() {
 void geometry_battery() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "battery");
 
-    GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    GSize textSize = graphics_text_layout_get_content_size("100", battery_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     // why is there extra space above the text???
     const int vfudge = textSize.h * 0.3;
     PBL_IF_ROUND_ELSE({
@@ -93,7 +95,7 @@ void geometry_health() {
     PBL_IF_RECT_ELSE({
         APP_LOG(APP_LOG_LEVEL_DEBUG, "health");
         
-        GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+        GSize textSize = graphics_text_layout_get_content_size("100", date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
         // why is there extra space above the text???
         const int vfudge = textSize.h * 0.2;
         // don't hit the edge of the screen

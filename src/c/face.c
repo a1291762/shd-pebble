@@ -7,14 +7,12 @@
 #include "palette.h"
 #include "geometry.h"
 #include "settings.h"
-
-static GBitmap *s_logo_bitmap;
-static GFont s_time_font;
-static GFont s_date_font;
+#include "resources.h"
 
 static bool pulsing = false;
 static bool mAmbient = false;
 static bool showOnlyAnims = false;
+static bool showAllTicks;
 
 static void drawCircleBackground(GContext *ctx) {
     graphics_context_set_fill_color(ctx, bgColor);
@@ -52,7 +50,6 @@ static void drawSimpleBackground(GContext *ctx) {
 }
 
 static void drawComplexBackground(GContext *ctx) {
-    bool showAllTicks = PBL_IF_ROUND_ELSE(false, true);
     const int skipped_ticks = 1;
 
     // ticks
@@ -260,35 +257,54 @@ static void drawComplexBackground(GContext *ctx) {
 // }
 
 static void drawForeground(GContext *ctx) {
-    graphics_draw_bitmap_in_rect(ctx, s_logo_bitmap, mLogoBounds);
+    graphics_draw_bitmap_in_rect(ctx, logo_bitmap, mLogoBounds);
 
     // date
     graphics_context_set_text_color(ctx, fgColor);
-    canvas_draw_text(ctx, s_day, s_date_font, mDateBounds[0], GTextAlignmentRight);
-    canvas_draw_text(ctx, s_mon, s_date_font, mDateBounds[1], GTextAlignmentRight);
-    canvas_draw_text(ctx, s_dow, s_date_font, mDateBounds[2], GTextAlignmentLeft);
-    canvas_draw_text(ctx, s_year, s_date_font, mDateBounds[3], GTextAlignmentLeft);
+    canvas_draw_text(ctx, s_day, date_font, mDateBounds[0], GTextAlignmentRight);
+    canvas_draw_text(ctx, s_mon, date_font, mDateBounds[1], GTextAlignmentRight);
+    canvas_draw_text(ctx, s_dow, date_font, mDateBounds[2], GTextAlignmentLeft);
+    canvas_draw_text(ctx, s_year, date_font, mDateBounds[3], GTextAlignmentLeft);
 
-    // // time background
-    // graphics_context_set_text_color(ctx, bgColor);
-    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[0], GTextAlignmentLeft);
-    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[1], GTextAlignmentLeft);
-    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[3], GTextAlignmentLeft);
-    // canvas_draw_text(ctx, "8", s_time_font, mTimeBounds[4], GTextAlignmentLeft);
+    PBL_IF_COLOR_ELSE({
+        // time background
+        graphics_context_set_text_color(ctx, timeBgColor);
+        canvas_draw_text(ctx, "8", time_font, mTimeBounds[0], GTextAlignmentLeft);
+        canvas_draw_text(ctx, "8", time_font, mTimeBounds[1], GTextAlignmentLeft);
+        canvas_draw_text(ctx, "8", time_font, mTimeBounds[3], GTextAlignmentLeft);
+        canvas_draw_text(ctx, "8", time_font, mTimeBounds[4], GTextAlignmentLeft);
+    }, {});
 
     // time foreground
     graphics_context_set_text_color(ctx, fgColor);
     char timeChar[2] = {0};
     timeChar[0] = s_time[0];
-    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[0], GTextAlignmentLeft);
+    canvas_draw_text(ctx, timeChar, time_font, mTimeBounds[0], GTextAlignmentLeft);
     timeChar[0] = s_time[1];
-    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[1], GTextAlignmentLeft);
+    canvas_draw_text(ctx, timeChar, time_font, mTimeBounds[1], GTextAlignmentLeft);
     timeChar[0] = s_time[2];
-    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[2], GTextAlignmentLeft);
+    canvas_draw_text(ctx, timeChar, time_font, mTimeBounds[2], GTextAlignmentLeft);
     timeChar[0] = s_time[3];
-    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[3], GTextAlignmentLeft);
+    canvas_draw_text(ctx, timeChar, time_font, mTimeBounds[3], GTextAlignmentLeft);
     timeChar[0] = s_time[4];
-    canvas_draw_text(ctx, timeChar, s_time_font, mTimeBounds[4], GTextAlignmentLeft);
+    canvas_draw_text(ctx, timeChar, time_font, mTimeBounds[4], GTextAlignmentLeft);
+
+    // debug bounds
+    // graphics_context_set_stroke_color(ctx, fgColor);
+    // graphics_context_set_stroke_width(ctx, 1);
+    // graphics_draw_rect(ctx, mLogoBounds);
+    // graphics_draw_rect(ctx, mDateBounds[0]);
+    // graphics_draw_rect(ctx, mDateBounds[1]);
+    // graphics_draw_rect(ctx, mDateBounds[2]);
+    // graphics_draw_rect(ctx, mDateBounds[3]);
+    // graphics_draw_rect(ctx, mTimeBounds[0]);
+    // graphics_draw_rect(ctx, mTimeBounds[1]);
+    // graphics_draw_rect(ctx, mTimeBounds[2]);
+    // graphics_draw_rect(ctx, mTimeBounds[3]);
+    // graphics_draw_rect(ctx, mTimeBounds[4]);
+    // PBL_IF_ROUND_ELSE({
+    //     graphics_draw_rect(ctx, mBatteryBounds);
+    // }, {});
 }
 
 // static void drawOverlapping(GContext *ctx) {
@@ -326,7 +342,8 @@ static void drawComplications(GContext *ctx) {
         // battery ring
         graphics_context_set_stroke_color(ctx, batteryRingColor);
         graphics_context_set_stroke_width(ctx, 1);
-        gap = PBL_IF_ROUND_ELSE(8, 0);
+        // if the battery percentage is being written in the ring, leave room for it
+        gap = showAllTicks ? 0 : 8;
         GRect mArcRect = setArcRect(px(21));
         angle = 270 - gap;
         sweep = (360 - gap - gap) * (mBattery / 100.0f);
@@ -336,7 +353,7 @@ static void drawComplications(GContext *ctx) {
         // battery percent
         PBL_IF_ROUND_ELSE(({
             graphics_context_set_text_color(ctx, fgColor);
-            canvas_draw_text(ctx, batteryChar, s_date_font, mBatteryBounds, GTextAlignmentCenter);
+            canvas_draw_text(ctx, batteryChar, battery_font, mBatteryBounds, GTextAlignmentCenter);
         }), {});
     }
 
@@ -425,29 +442,16 @@ void face_layer_update_proc(Layer *layer, GContext *ctx) {
     // }
 }
 
-void face_layer_settings_changed() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings changed");
-    GColor *pal = gbitmap_get_palette(s_logo_bitmap);
-    pal[0] = bgColor;
-    pal[1] = fgColor;
-    gbitmap_set_palette(s_logo_bitmap, pal, false);
-}
-
 void face_layer_init() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
-    s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
-#if PBL_DISPLAY_HEIGHT >= 180
-    int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_50;
-#else
-    int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_45;
-#endif
-    s_time_font = fonts_load_custom_font(resource_get_handle(alarm_clock_font));
-    s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-    geometry_init(s_logo_bitmap, s_time_font, s_date_font);
+
+    showAllTicks = PBL_IF_ROUND_ELSE(false, true);
+
+    resources_init();
+    geometry_init();
 }
 
 void face_layer_deinit() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "deinit");
-    gbitmap_destroy(s_logo_bitmap);
-    fonts_unload_custom_font(s_time_font);
+    resources_deinit();
 }

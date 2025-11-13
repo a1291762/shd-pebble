@@ -56,6 +56,16 @@
           ]
         },
         {
+          "type": "font",
+          "name": "FONT_ALARM_CLOCK_50",
+          "file": "fonts/alarm clock.ttf",
+          "characterRegex": "[:0-9]",
+          "targetPlatforms": [
+            "chalk",
+            "emery"
+          ]
+        },
+        {
           "type": "bitmap",
           "name": "IMAGE_HOLLOW",
           "file": "images/hollow_43.png",
@@ -63,16 +73,14 @@
           "targetPlatforms": [
             "aplite",
             "basalt",
-            "chalk",
-            "diorite",
-            "emery"
+            "diorite"
           ]
         },
         {
-          "type": "font",
-          "name": "FONT_ALARM_CLOCK_50",
-          "file": "fonts/alarm clock.ttf",
-          "characterRegex": "[:0-9]",
+          "type": "bitmap",
+          "name": "IMAGE_HOLLOW",
+          "file": "images/hollow_50.png",
+          "memoryFormat": "1BitPalette",
           "targetPlatforms": [
             "chalk",
             "emery"
