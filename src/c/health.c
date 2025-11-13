@@ -69,7 +69,7 @@ static void health_handler(HealthEventType event, void *context) {
     char *act = health_event_type_enum(event);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "health handler event %s", act);
     if (event == HealthEventSignificantUpdate || event == HealthEventMovementUpdate) {
-        time_t now = time(NULL);
+        time_t this_seconds = time(NULL);
         time_t start_of_day = time_start_of_today();
 
         int steps = health_service_sum_today(HealthMetricStepCount);
@@ -88,7 +88,7 @@ static void health_handler(HealthEventType event, void *context) {
         const char *fmt = (steps > 1000) ? "%03d" : "%3d";
         snprintf(&stepsChar[index], sizeof(stepsChar) - index, fmt, steps % 1000);
 
-        hours_update();
+        hours_update(start_of_day, this_seconds);
         int hours = hours_data.hours_active;
         APP_LOG(APP_LOG_LEVEL_DEBUG, "hours %d", hours);
         mHours = value_to_percent(hours, settings.HourTarget);
@@ -96,7 +96,7 @@ static void health_handler(HealthEventType event, void *context) {
 
         int minutes = 0;
         HealthActivityMask activity_mask = HealthActivityWalk | HealthActivityRun | HealthActivityOpenWorkout;
-        health_service_activities_iterate(activity_mask, start_of_day, now, HealthIterationDirectionFuture, count_minutes, &minutes);
+        health_service_activities_iterate(activity_mask, start_of_day, this_seconds, HealthIterationDirectionFuture, count_minutes, &minutes);
         APP_LOG(APP_LOG_LEVEL_DEBUG, "minutes %d", minutes);
         mMinutes = value_to_percent(minutes, settings.MinuteTarget);
         snprintf(minutesChar, sizeof(minutesChar), "%d", minutes);
@@ -113,7 +113,7 @@ static void health_handler(HealthEventType event, void *context) {
 
 void health_init(health_changed_cb callback) {
     health_deinit();
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "health_init");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
     health_changed = callback;
     mSteps = -1;
@@ -132,14 +132,10 @@ void health_init(health_changed_cb callback) {
         hours_delete();
     }
 #endif
-
-    if (health_changed) {
-        health_changed();
-    }
 }
 
 void health_deinit() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "health_deinit");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "deinit");
     health_changed = NULL;
 #ifdef PBL_HEALTH
     health_service_events_unsubscribe();

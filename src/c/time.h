@@ -1,8 +1,8 @@
 #pragma once
 
-extern unsigned long now;
-extern char s_time[];
+extern long long now;
 extern char s_day[];
+extern char s_time[];
 extern char s_mon[];
 extern char s_dow[];
 extern char s_year[];

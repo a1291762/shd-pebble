@@ -46,7 +46,7 @@ void canvas_init(GRect window_bounds) {
     int y = window_bounds.origin.y;
     int w = window_bounds.size.w;
     int h = window_bounds.size.h;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "window bounds are %d %d, %d %d", x, y, w, h);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "window bounds %d %d, %d %d", x, y, w, h);
 
 #if PBL_RECT
     if (PBL_DISPLAY_HEIGHT < 180) {
@@ -60,15 +60,15 @@ void canvas_init(GRect window_bounds) {
     y -= (h - window_bounds.size.h) / 2.0;
 #endif
     canvas_bounds = GRect(x, y, w, h);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "canvas bounds are %d %d, %d %d", x, y, w, h);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "canvas bounds %d %d, %d %d", x, y, w, h);
 
     canvas_center_x = w / 2;
     canvas_center_y = h / 2;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "canvas center is %d %d", canvas_center_x, canvas_center_y);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "canvas center %d %d", canvas_center_x, canvas_center_y);
 
     screen_center_x = window_bounds.size.w / 2;
     screen_center_y = window_bounds.size.h / 2;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "screen center is %d %d", screen_center_x, screen_center_y);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "screen center %d %d", screen_center_x, screen_center_y);
 
     if (PBL_DISPLAY_HEIGHT >= 180) {
         mScale = canvas_bounds.size.w / 400.0f; // 1.0 on TicWatch E, 0.9 on TicWatch E3

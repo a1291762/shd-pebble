@@ -15,17 +15,17 @@ static Layer *s_face_layer;
 static Layer *s_ext_layer;
 
 static void time_changed() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "time_changed");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "redraw (time)");
     layer_mark_dirty(s_face_layer);
 }
 
 static void battery_changed() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery_changed");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "redraw (battery)");
     layer_mark_dirty(s_face_layer);
 }
 
 static void health_changed() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "health_changed");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "redraw (health)");
     layer_mark_dirty(s_face_layer);
 }
 

@@ -8,7 +8,6 @@ static settings_changed_cb settings_changed;
 #define ENUM_HELPER(x) case x: return #x;
 
 static void settings_reset() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_reset");
     settings.DisplaySeconds = false;
     settings.DisplayBattery = true;
     settings.DisplayHealth = true;
@@ -20,7 +19,7 @@ static void settings_reset() {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received handler");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox handler");
 
     Tuple *tuple;
     if ((tuple = dict_find(iter, MESSAGE_KEY_DisplaySeconds))) {
@@ -74,7 +73,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
 void settings_init(settings_changed_cb callback) {
     settings_deinit();
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_init");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
     settings_changed = callback;
 
@@ -110,13 +109,14 @@ void settings_init(settings_changed_cb callback) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %lu", size);
     app_message_open(size, size);
 
+    // The settings have always "changed" when we start
     if (settings_changed) {
         settings_changed();
     }
 }
 
 void settings_deinit() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings_deinit");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "deinit");
     settings_changed = NULL;
     app_message_deregister_callbacks();
 }

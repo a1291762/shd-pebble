@@ -15,7 +15,7 @@ GRect mMinutesBounds;
 GRect mHoursBounds;
 
 void geometry_init(GBitmap *logo_bitmap, GFont time_font, GFont date_font) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "geometry init");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
     // ticks
     float outerTickRadius = canvas_center_x - px(5);
@@ -53,7 +53,7 @@ void geometry_init(GBitmap *logo_bitmap, GFont time_font, GFont date_font) {
 }
 
 void geometry_date() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "geometry date");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "date");
     
     // date
     float x1 = canvas_center_x - px(64);
@@ -74,6 +74,8 @@ void geometry_date() {
 }
 
 void geometry_battery() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery");
+
     GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     // why is there extra space above the text???
     const int vfudge = textSize.h * 0.3;
@@ -89,6 +91,8 @@ void geometry_battery() {
 
 void geometry_health() {
     PBL_IF_RECT_ELSE({
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "health");
+        
         GSize textSize = graphics_text_layout_get_content_size("100", s_date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
         // why is there extra space above the text???
         const int vfudge = textSize.h * 0.2;

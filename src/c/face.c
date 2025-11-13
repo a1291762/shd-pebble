@@ -400,7 +400,7 @@ static void drawComplications(GContext *ctx) {
 }
 
 void face_layer_update_proc(Layer *layer, GContext *ctx) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "update face layer");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "draw");
     // background (circle)
     drawCircleBackground(ctx);
 
@@ -426,7 +426,7 @@ void face_layer_update_proc(Layer *layer, GContext *ctx) {
 }
 
 void face_layer_settings_changed() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "face layer settings changed");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings changed");
     GColor *pal = gbitmap_get_palette(s_logo_bitmap);
     pal[0] = bgColor;
     pal[1] = fgColor;
@@ -434,7 +434,7 @@ void face_layer_settings_changed() {
 }
 
 void face_layer_init() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "face layer init");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
     s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
 #if PBL_DISPLAY_HEIGHT >= 180
     int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_50;
@@ -447,7 +447,7 @@ void face_layer_init() {
 }
 
 void face_layer_deinit() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "face layer deinit");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "deinit");
     gbitmap_destroy(s_logo_bitmap);
     fonts_unload_custom_font(s_time_font);
 }
