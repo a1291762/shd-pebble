@@ -8,5 +8,5 @@ struct HoursData {
 
 extern struct HoursData hours_data;
 
-void hours_update(time_t start_of_day, time_t this_seconds);
+bool hours_update(time_t start_of_day, time_t this_seconds);
 void hours_delete();

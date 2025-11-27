@@ -10,7 +10,7 @@ static void hours_reset() {
     hours_data.hours_active = 0;
 }
 
-void hours_update(time_t start_of_day, time_t this_seconds) {
+bool hours_update(time_t start_of_day, time_t this_seconds) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "update");
 
     bool needs_persist = false;
@@ -57,6 +57,7 @@ void hours_update(time_t start_of_day, time_t this_seconds) {
         // do not count this hour again
         hours_data.hours_counted++;
         needs_persist = true;
+        break;
     }
 
     // If we get to 100 steps in this hour, stop doing this
@@ -75,6 +76,8 @@ void hours_update(time_t start_of_day, time_t this_seconds) {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "write persistent cache");
         persist_write_data(HOURS_KEY, &hours_data, sizeof(hours_data));
     }
+
+    return (hours_data.hours_counted >= current_hour);
 }
 
 void hours_delete() {

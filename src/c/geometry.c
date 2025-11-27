@@ -49,6 +49,7 @@ void geometry_init() {
     mTimeBounds[4] = GRect(x2, y, digitWidth, digitHeight);
 
     geometry_battery();
+    geometry_health();
 }
 
 void geometry_date() {
