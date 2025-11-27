@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "animation.h"
 #include "time.h"
+#include "palette.h"
 
 bool animating = false;
 
@@ -11,6 +12,7 @@ static int anim_secs = 10;
 static void anim_setup(Animation *animation) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "setup");
     animating = true;
+    palette_init();
     //s_anim_callback();
 }
 
@@ -30,6 +32,7 @@ static void anim_teardown(Animation *animation) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "teardown");
     s_anim = NULL;
     animating = false;
+    palette_init();
     s_anim_callback();
 }
 

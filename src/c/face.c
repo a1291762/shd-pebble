@@ -11,8 +11,6 @@
 #include "animation.h"
 
 static bool pulsing = false;
-static bool mAmbient = false;
-static bool showOnlyAnims = false;
 static bool showAllTicks;
 
 static void drawCircleBackground(GContext *ctx) {
@@ -34,7 +32,7 @@ static void drawSimpleBackground(GContext *ctx) {
     canvas_draw_arc(ctx, mArcRect, 90+gap+120, max_sweep);
     canvas_draw_arc(ctx, mArcRect, 90+gap+240, max_sweep);
 
-    if (!pulsing && !showOnlyAnims) {
+    if (!pulsing && !animating) {
         // remove the contents of the outer ring segments
         graphics_context_set_stroke_color(ctx, bgColor);
         graphics_context_set_stroke_width(ctx, px(8));
@@ -57,7 +55,7 @@ static void drawComplexBackground(GContext *ctx) {
     graphics_context_set_stroke_color(ctx, fgColor);
     graphics_context_set_stroke_width(ctx, 1); //px(2)
     for (int tickIndex = 0; tickIndex < tick_count; tickIndex++) {
-        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
+        if (mBattery == -1 || animating || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
             struct Tick *tick = &mTicks[tickIndex];
             canvas_draw_line(ctx, canvas_center_x + tick->innerX, canvas_center_y + tick->innerY,
                 canvas_center_x + tick->outerX, canvas_center_y + tick->outerY);
@@ -69,7 +67,7 @@ static void drawComplexBackground(GContext *ctx) {
         graphics_context_set_stroke_color(ctx, fgColor);
         graphics_context_set_stroke_width(ctx, 2);
         int tickIndex = (int)((now % 60000) / 1000) * (tick_count / 60);
-        if (mBattery == -1 || showOnlyAnims || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
+        if (mBattery == -1 || animating || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
             struct Tick *tick = &mTicks[tickIndex];
             canvas_draw_line(ctx, canvas_center_x + tick->innerX, canvas_center_y + tick->innerY,
                 canvas_center_x + tick->outerX, canvas_center_y + tick->outerY);
@@ -78,7 +76,7 @@ static void drawComplexBackground(GContext *ctx) {
 
     // not enough pixels for this?
     // int sweep;
-    // if (showOnlyAnims) {
+    // if (animating) {
     //     // left half circle
     //     graphics_context_set_stroke_color(ctx, fgColor);
     //     graphics_context_set_stroke_width(ctx, 1);
@@ -113,33 +111,26 @@ static void drawComplexBackground(GContext *ctx) {
 // https://www.youtube.com/watch?v=AQdDVrHOKB8
 void drawAnimations(GContext *ctx) {
 
-    // long now = this.now;
-    // if (targetFps == 1) {
-    //     // to prevent wonky animation, pin the time to the start
-    //     // of the current minute
-    //     now = (this.now / 60000 * 60000);
-    // }
-
     int gap;
-    float wibble;
     float angle, sweep;
-
-    graphics_context_set_stroke_color(ctx, fgColor);
-    graphics_context_set_stroke_width(ctx, 1);
-
-    // inner ring
-    float ref = px(70);
     GRect mArcRect;
-    // mArcRect = setArcRect(ref);
-    // canvas_draw_arc(ctx, mArcRect, 0, 360);
+    float wibble = px(14);
+    float ref = px(60);
 
-    // inner ring details
-    wibble = px(14);
-    // mArcRect = setArcRect(ref - wibble);
-    // canvas_draw_arc(ctx, mArcRect, 0, 360);
+    PBL_IF_COLOR_ELSE({
+        // inner ring
+        graphics_context_set_stroke_color(ctx, innerBandColor);
+        graphics_context_set_stroke_width(ctx, px(20));
+        mArcRect = setArcRect(ref);
+        canvas_draw_arc(ctx, mArcRect, 0, 360);
 
-    // mArcRect = setArcRect(ref + wibble);
-    // canvas_draw_arc(ctx, mArcRect, 0, 360);
+        // inner ring details
+        graphics_context_set_stroke_width(ctx, 1);
+        setArcRect(ref - wibble);
+        canvas_draw_arc(ctx, mArcRect, 0, 360);
+        setArcRect(ref + wibble);
+        canvas_draw_arc(ctx, mArcRect, 0, 360);
+    }, {});
 
     // inner ring animation
     int anim_period = 1500;
@@ -151,14 +142,27 @@ void drawAnimations(GContext *ctx) {
     float anim_angle = 270;
     if (quadrant == 2) anim_angle = 270 + anim_sweep;
     if (quadrant == 2) anim_sweep = 359 - anim_sweep;
-    mArcRect = setArcRect(ref);
-    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
-    mArcRect = setArcRect(ref - wibble);
-    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
-    mArcRect = setArcRect(ref + wibble);
-    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+    if (anim_sweep != 0) {
+        // adjust for non-square stokes
+        anim_angle += 2;
+        anim_sweep -= 2;
+        PBL_IF_COLOR_ELSE({
+            graphics_context_set_stroke_color(ctx, innerBandBrightColor);
+            graphics_context_set_stroke_width(ctx, px(20));
+            mArcRect = setArcRect(ref);
+            canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+        }, {});
+        graphics_context_set_stroke_color(ctx, innerBandBrightColor);
+        graphics_context_set_stroke_width(ctx, 1);
+        mArcRect = setArcRect(ref - wibble);
+        canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+        mArcRect = setArcRect(ref + wibble);
+        canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+    }
 
     // the line
+    graphics_context_set_stroke_color(ctx, innerBandLineColor);
+    graphics_context_set_stroke_width(ctx, 1);
     mArcRect = setArcRect(ref);
     anim_sweep = 360;
     if (quadrant == 0 || quadrant == 3) {
@@ -170,6 +174,8 @@ void drawAnimations(GContext *ctx) {
     canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
 
     // line highlight
+    graphics_context_set_stroke_color(ctx, innerBandLineBrightColor);
+    graphics_context_set_stroke_width(ctx, 2);
     int line_period = 1000;
     int line_quadrant = (int)(now % (line_period*6) / line_period);
     angle = -90 + line_quadrant * 360/6.0f;
@@ -185,89 +191,99 @@ void drawAnimations(GContext *ctx) {
 
     // draw the gaps back in
     graphics_context_set_stroke_color(ctx, bgColor);
-    gap = 1;
-    canvas_draw_arc(ctx, mArcRect, 90-gap, gap+gap);
-    canvas_draw_arc(ctx, mArcRect, 90-gap+120, gap+gap);
-    canvas_draw_arc(ctx, mArcRect, 90-gap+240, gap+gap);
-    canvas_draw_arc(ctx, mArcRect, 90-gap+60, gap+gap);
-    canvas_draw_arc(ctx, mArcRect, 90-gap+180, gap+gap);
-    canvas_draw_arc(ctx, mArcRect, 90-gap+300, gap+gap);
+    graphics_context_set_stroke_width(ctx, 2);
+    int count = 6;
+    float outerTickRadius = canvas_center_x - ref + px(10);
+    float innerTickRadius = canvas_center_x - ref - px(10);
+    float one = CIRCLE / (float)count;
+
+    for (int tickIndex = 0; tickIndex < count; tickIndex++) {
+        float tickRot = (one * tickIndex);
+        int innerX = math_sin(tickRot) * innerTickRadius;
+        int innerY = -math_cos(tickRot) * innerTickRadius;
+        int outerX = math_sin(tickRot) * outerTickRadius;
+        int outerY = -math_cos(tickRot) * outerTickRadius;
+        canvas_draw_line(ctx, canvas_center_x + innerX, canvas_center_y + innerY,
+            canvas_center_x + outerX, canvas_center_y + outerY);
+    }
 
     // counter-rotating lines
-    graphics_context_set_stroke_color(ctx, fgColor);
-    mArcRect = setArcRect(px(95));
-    canvas_draw_arc(ctx, mArcRect, 0, 360);
+    mArcRect = setArcRect(px(85));
+    PBL_IF_COLOR_ELSE({
+        graphics_context_set_stroke_color(ctx, innerBandColor);
+        graphics_context_set_stroke_width(ctx, 2);
+        canvas_draw_arc(ctx, mArcRect, 0, 360);
+    }, {});
     int period = 60000;
     angle = (period - (now % period)) / (float)period * 360;
     sweep = 50;
+    graphics_context_set_stroke_color(ctx, innerBandBrightColor);
+    graphics_context_set_stroke_width(ctx, 2);
     canvas_draw_arc(ctx, mArcRect, angle, sweep);
     canvas_draw_arc(ctx, mArcRect, angle + 90, sweep);
     canvas_draw_arc(ctx, mArcRect, angle + 180, sweep);
     canvas_draw_arc(ctx, mArcRect, angle + 270, sweep);
 
     // blobs
-    graphics_context_set_stroke_color(ctx, fgColor);
+    graphics_context_set_stroke_color(ctx, blobColor);
     graphics_context_set_stroke_width(ctx, 4);
-    setArcRect(px(108));
+    mArcRect = setArcRect(px(98));
     ref = 200;
     angle = ref;
-    sweep = 4;
-    gap = 2;
-    canvas_draw_arc(ctx, mArcRect, angle, sweep);
-    angle += sweep + gap;
-    canvas_draw_arc(ctx, mArcRect, angle, sweep);
-    angle += sweep + gap;
-    canvas_draw_arc(ctx, mArcRect, angle, sweep);
-    angle += sweep + gap;
-    canvas_draw_arc(ctx, mArcRect, angle, sweep);
-    angle += sweep + gap;
-    canvas_draw_arc(ctx, mArcRect, angle, sweep);
-    angle += sweep + gap;
-    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    sweep = 1;
+    gap = 6;
+    for (int i = 0; i < 6; i++) {
+        PBL_IF_BW_ELSE({
+            graphics_context_set_stroke_color(ctx, blobBrightColor);
+            graphics_context_set_stroke_width(ctx, 6);
+            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+            graphics_context_set_stroke_color(ctx, blobColor);
+            graphics_context_set_stroke_width(ctx, 4);
+            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        }, {
+            canvas_draw_arc(ctx, mArcRect, angle, sweep);
+        });
+        angle += sweep + gap;
+    }
 
     // highlighted blob
-    graphics_context_set_stroke_color(ctx, bgColor);
+    graphics_context_set_stroke_color(ctx, blobBrightColor);
     period = 500;
     quadrant = (int)(now % (period*6) / period);
     angle = ref + (5 - quadrant) * (sweep + gap);
     canvas_draw_arc(ctx, mArcRect, angle, sweep);
-
+ 
     // expanding circle
-    graphics_context_set_stroke_color(ctx, fgColor);
-    graphics_context_set_stroke_width(ctx, 1);
     period = 1000;
     // expand, slowing but do not contract
     angle = now % period / (float)period / 1.8f;
-    // if (systemAmbientTime != 0) {
-    //     angle = (1/1.8f) - angle;
-    // }
     angle = (float)(math_sin(angle * PI));
-    setArcRect(px(200) - (int)(angle * px(82)));
-    // // interpolate from black (with a fadeout at the end)
-    // int r = (currentPalette.explodingCircle >> 16) & 0xff;
-    // int g = (currentPalette.explodingCircle >> 8) & 0xff;
-    // int b = 0;
-    // angle = now % period / (float)period / 1.2f;
-    // if (systemAmbientTime != 0) {
-    //     angle = (1/1.2f) - angle;
-    // }
-    // angle = (float)(Math.sin(angle * Math.PI));
-    // r = (int)(r * angle);
-    // g = (int)(g * angle);
-    // mExplodingCirclePaint.setColor(Color.rgb(r, g, b));
-    // canvas_draw_arc(mArcRect, 0, 360, false, mExplodingCirclePaint);
+    mArcRect = setArcRect(px(200) - (int)(angle * px(85)));
+    GColor color = expandingColor;
+    PBL_IF_COLOR_ELSE({
+        // interpolate from black (with a fadeout at the end)
+        int r = 0b11;
+        int g = 0b01;
+        angle = now % period / (float)period / 1.2f;
+        angle = (float)(math_sin(angle * PI));
+        r = (int)(r * angle);
+        g = (int)(g * angle);
+        color.r = r;
+        color.g = g;
+    }, {});
+    graphics_context_set_stroke_color(ctx, color);
+    graphics_context_set_stroke_width(ctx, px(8));
+    canvas_draw_arc(ctx, mArcRect, 0, 360);
 
-    // if (showOnlyAnims) {
-        // fast counter-rotating dot
-        graphics_context_set_stroke_color(ctx, fgColor);
-        graphics_context_set_stroke_width(ctx, 1);
-        setArcRect(px(50));
-        period = 2000;
-        angle = (period - (now % period)) / (float)period * 360;
-        angle = ((int)angle + 315) % 360; // -45 degree offset
-        sweep = 10;
-        canvas_draw_arc(ctx, mArcRect, angle, sweep);
-    // }
+    // fast counter-rotating dot
+    graphics_context_set_stroke_color(ctx, counterDotColor);
+    graphics_context_set_stroke_width(ctx, 1);
+    mArcRect = setArcRect(px(48));
+    period = 2000;
+    angle = (period - (now % period)) / (float)period * 360;
+    angle = ((int)angle + 315) % 360; // -45 degree offset
+    sweep = 10;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
 }
 
 static void drawForeground(GContext *ctx) {
@@ -438,25 +454,18 @@ void face_layer_update_proc(Layer *layer, GContext *ctx) {
 
     // outer band (hollow)
     drawSimpleBackground(ctx);
-    if (!mAmbient) {
-        // outer details (including ticks)
-        drawComplexBackground(ctx);
-        if (animating) {
-            // inner details (animating)
-            drawAnimations(ctx);
-        }
+    // outer details (including ticks)
+    drawComplexBackground(ctx);
+    if (animating) {
+        // inner details (animating)
+        drawAnimations(ctx);
     }
 
-    if (!animating && !showOnlyAnims) {
+    if (!animating) {
         // date, time, notifications
         drawForeground(ctx);
         drawComplications(ctx);
     }
-
-    // if (!mAmbient) {
-    //     // outer details
-    //     drawOverlapping(ctx);
-    // }
 }
 
 void face_layer_init(Layer *face_layer) {
