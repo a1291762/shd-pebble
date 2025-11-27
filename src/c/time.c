@@ -58,7 +58,7 @@ void time_init(time_changed_cb callback) {
     }
     tick_timer_service_subscribe(units, tick_handler);
     // probe for initial time
-    // time_update();
+    time_update();
 }
 
 void time_deinit() {
