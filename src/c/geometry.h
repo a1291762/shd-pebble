@@ -18,5 +18,3 @@ extern GRect mHoursBounds;
 
 void geometry_init();
 void geometry_date();
-void geometry_battery();
-void geometry_health();

@@ -14,6 +14,39 @@ GRect mStepsBounds;
 GRect mMinutesBounds;
 GRect mHoursBounds;
 
+static void geometry_battery() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery");
+
+    GSize textSize = graphics_text_layout_get_content_size("100", battery_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+    // why is there extra space above the text???
+    const int vfudge = textSize.h * 0.3;
+    PBL_IF_ROUND_ELSE({
+        mBatteryBounds = GRect(canvas_center_x - textSize.w/2, -vfudge, textSize.w, textSize.h);
+    }, {
+        // don't hit the edge of the screen
+        const int hfudge = px(8);
+        int w = screen_center_x * 2;
+        mBatteryBounds = GRect(0, -vfudge, w - hfudge, 100);
+    });
+}
+
+static void geometry_health() {
+    PBL_IF_RECT_ELSE({
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "health");
+
+        GSize textSize = graphics_text_layout_get_content_size("100", date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
+        // why is there extra space above the text???
+        const int vfudge = textSize.h * 0.2;
+        // don't hit the edge of the screen
+        const int hfudge = px(8);
+        int w = screen_center_x * 2;
+        int y = screen_center_y*2 - textSize.h - vfudge;
+        mStepsBounds = GRect(0, y, w - hfudge, 100);
+        mMinutesBounds = GRect(hfudge, y, w, 100);
+        mHoursBounds = GRect(hfudge, -vfudge, w, 100);
+    }, {});
+}
+
 void geometry_init() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
@@ -76,37 +109,4 @@ void geometry_date() {
     GSize yearSize = graphics_text_layout_get_content_size(s_year, date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
     mDateBounds[2] = GRect(x2, y1, dowSize.w, dowSize.h);
     mDateBounds[3] = GRect(x2, y2, yearSize.w, yearSize.h);
-}
-
-void geometry_battery() {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery");
-
-    GSize textSize = graphics_text_layout_get_content_size("100", battery_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
-    // why is there extra space above the text???
-    const int vfudge = textSize.h * 0.3;
-    PBL_IF_ROUND_ELSE({
-        mBatteryBounds = GRect(canvas_center_x - textSize.w/2, -vfudge, textSize.w, textSize.h);
-    }, {
-        // don't hit the edge of the screen
-        const int hfudge = px(8);
-        int w = screen_center_x * 2;
-        mBatteryBounds = GRect(0, -vfudge, w - hfudge, 100);
-    });
-}
-
-void geometry_health() {
-    PBL_IF_RECT_ELSE({
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "health");
-        
-        GSize textSize = graphics_text_layout_get_content_size("100", date_font, GRect(0, 0, 100, 100), GTextOverflowModeWordWrap, GTextAlignmentLeft);
-        // why is there extra space above the text???
-        const int vfudge = textSize.h * 0.2;
-        // don't hit the edge of the screen
-        const int hfudge = px(8);
-        int w = screen_center_x * 2;
-        int y = screen_center_y*2 - textSize.h - vfudge;
-        mStepsBounds = GRect(0, y, w - hfudge, 100);
-        mMinutesBounds = GRect(hfudge, y, w, 100);
-        mHoursBounds = GRect(hfudge, -vfudge, w, 100);
-    }, {});
 }
