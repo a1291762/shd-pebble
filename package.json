@@ -24,7 +24,9 @@
       "MinuteTarget",
       "HourTarget",
       "InvertColor",
-      "PartialInvert"
+      "PartialInvert",
+      "AnimateOnLaunch",
+      "AnimateOnShake"
     ],
     "targetPlatforms": [
       "aplite",

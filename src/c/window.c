@@ -35,6 +35,14 @@ static void anim_update() {
     layer_mark_dirty(s_face_layer);
 }
 
+static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
+    if (animating) {
+        animation_stop();
+    } else {
+        animation_start(anim_update);
+    }
+}
+
 static void settings_changed() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "settings changed");
     palette_init();
@@ -43,7 +51,14 @@ static void settings_changed() {
     time_init(time_changed);
     battery_init(battery_changed);
     health_init(health_changed);
-    animation_start(anim_update);
+    if (settings.AnimateOnLaunch) {
+        animation_start(anim_update);
+    }
+    if (settings.AnimateOnShake) {
+        accel_tap_service_subscribe(accel_tap_handler);
+    } else {
+        accel_tap_service_unsubscribe();
+    }
 }
 
 void main_window_load(Window *window) {
@@ -80,4 +95,5 @@ void main_window_unload(Window *window) {
     battery_deinit();
     health_deinit();
     animation_stop();
+    accel_tap_service_unsubscribe();
 }

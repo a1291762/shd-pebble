@@ -33,6 +33,18 @@
         "defaultValue": false
       },
       {
+        "type": "toggle",
+        "messageKey": "AnimateOnLaunch",
+        "label": "Display animation on launch",
+        "defaultValue": false
+      },
+      {
+        "type": "toggle",
+        "messageKey": "AnimateOnShake",
+        "label": "Display animation on shake",
+        "defaultValue": false
+      },
+      {
         "type": "input",
         "messageKey": "StepTarget",
         "label": "Step Target",

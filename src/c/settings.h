@@ -9,6 +9,8 @@ struct Settings {
     int StepTarget;
     int MinuteTarget;
     int HourTarget;
+    bool AnimateOnLaunch;
+    bool AnimateOnShake;
 } __attribute__((__packed__));
 
 extern struct Settings settings;
