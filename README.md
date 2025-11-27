@@ -4,10 +4,11 @@ Originally implemented for Wear OS (https://github.com/a1291762/shd/), ported to
 
 Features:
 
-* Shows time in 12/24 hour format (respects user preference)
+* Shows time in 12/24 hour format (respects system preference)
 * Shows the date, including day of week
 * Has an outer circle designed for displaying battery percentage
 * Has 3 inner circle segments designed for displaying fitness information
+* Has optional gratuitous animation
 
 As I was attempting to re-create the experience I had on my TicWatch E3, I
 have setup the health display using the same logic. The top segment counts
@@ -16,9 +17,9 @@ steps. The left segment counts minutes of exercise, as tracked by the workout
 app (manually entered, or automatically detected). The right segment tracks
 steps for today. Goals can be set in the app preferences.
 
-My Pebble 2 Duo does not fully support Pebble Heath so the separate goal
-settings may overlap with system-provided goal settings. If/once I can set
-them, then I'll remove the app preferences.
+My Pebble 2 Duo does not fully support Pebble Heath yet so the separate goal
+settings may overlap with system-provided goal settings. Once Pebble Health is
+working on my watch, I'll remove anything that overlap with system settings.
 
 Third Party resources
 
