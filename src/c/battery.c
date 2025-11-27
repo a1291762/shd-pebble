@@ -14,7 +14,6 @@ static void battery_handler(BatteryChargeState charge_state) {
     else if (mBattery > 100) mBattery = 100;
 
     snprintf(batteryChar, sizeof(batteryChar), "%d", mBattery);
-    geometry_battery();
 
     if (battery_changed) {
         battery_changed();

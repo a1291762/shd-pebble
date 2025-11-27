@@ -47,6 +47,8 @@ void geometry_init() {
     mTimeBounds[2] = GRect(x1 + 2 * digitWidth, y, digitWidth, digitHeight);
     mTimeBounds[3] = GRect(x2 - digitWidth, y, digitWidth, digitHeight);
     mTimeBounds[4] = GRect(x2, y, digitWidth, digitHeight);
+
+    geometry_battery();
 }
 
 void geometry_date() {
