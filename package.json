@@ -61,7 +61,7 @@
           "type": "font",
           "name": "FONT_ALARM_CLOCK_50",
           "file": "fonts/alarm clock.ttf",
-          "characterRegex": "[:0-9]",
+          "characterRegex": "[ :0-9]",
           "targetPlatforms": [
             "chalk",
             "emery"
