@@ -1,5 +1,4 @@
 #include <pebble.h>
-#include "settings.h"
 #include "window.h"
 
 static Window *s_main_window;
@@ -12,7 +11,7 @@ static void init() {
         .unload = main_window_unload
     });
 
-    const bool animated = true;
+    const bool animated = false;
     window_stack_push(s_main_window, animated);
 }
 
