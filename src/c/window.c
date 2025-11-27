@@ -85,6 +85,7 @@ void main_window_load(Window *window) {
 }
 
 void main_window_unload(Window *window) {
+    animation_stop();
     layer_destroy(s_face_layer);
     PBL_IF_RECT_ELSE({
         layer_destroy(s_ext_layer);
@@ -94,6 +95,5 @@ void main_window_unload(Window *window) {
     time_deinit();
     battery_deinit();
     health_deinit();
-    animation_stop();
     accel_tap_service_unsubscribe();
 }
