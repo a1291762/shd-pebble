@@ -8,6 +8,7 @@
 #include "geometry.h"
 #include "settings.h"
 #include "resources.h"
+#include "animation.h"
 
 static bool pulsing = false;
 static bool mAmbient = false;
@@ -110,151 +111,164 @@ static void drawComplexBackground(GContext *ctx) {
 
 // implements gratuitous animations as per
 // https://www.youtube.com/watch?v=AQdDVrHOKB8
-// void drawAnimations(GContext *ctx) {
+void drawAnimations(GContext *ctx) {
 
-//     long now = this.now;
-//     if (targetFps == 1) {
-//         // to prevent wonky animation, pin the time to the start
-//         // of the current minute
-//         now = (this.now / 60000 * 60000);
-//     }
+    // long now = this.now;
+    // if (targetFps == 1) {
+    //     // to prevent wonky animation, pin the time to the start
+    //     // of the current minute
+    //     now = (this.now / 60000 * 60000);
+    // }
 
-//     int gap;
-//     float wibble;
-//     float angle, sweep;
+    int gap;
+    float wibble;
+    float angle, sweep;
 
-//     // inner ring
-//     float ref = px(70);
-//     setArcRect(ref);
-//     canvas.drawArc(mArcRect, 0, 360, false, mInnerBandPaint);
+    graphics_context_set_stroke_color(ctx, fgColor);
+    graphics_context_set_stroke_width(ctx, 1);
 
-//     // inner ring details
-//     wibble = px(14);
-//     setArcRect(ref - wibble);
-//     canvas.drawArc(mArcRect, 0, 360, false, mInnerBandDetailPaint);
+    // inner ring
+    float ref = px(70);
+    GRect mArcRect;
+    // mArcRect = setArcRect(ref);
+    // canvas_draw_arc(ctx, mArcRect, 0, 360);
 
-//     setArcRect(ref + wibble);
-//     canvas.drawArc(mArcRect, 0, 360, false, mInnerBandDetailPaint);
+    // inner ring details
+    wibble = px(14);
+    // mArcRect = setArcRect(ref - wibble);
+    // canvas_draw_arc(ctx, mArcRect, 0, 360);
 
-//     // inner ring animation
-//     int anim_period = 1500;
-//     int quadrant = (int)(now % (anim_period*4) / anim_period);
-//     float anim_sweep = 0;
-//     if (quadrant == 1 || quadrant == 2) {
-//         anim_sweep = ((now % anim_period) / (float)anim_period) * 360;
-//     }
-//     float anim_angle = 270;
-//     if (quadrant == 2) anim_angle = 270 + anim_sweep;
-//     if (quadrant == 2) anim_sweep = 359 - anim_sweep;
-//     setArcRect(ref);
-//     canvas.drawArc(mArcRect, anim_angle, anim_sweep, false, mInnerBandBrightPaint);
-//     setArcRect(ref - wibble);
-//     canvas.drawArc(mArcRect, anim_angle, anim_sweep, false, mInnerBandDetailBrightPaint);
-//     setArcRect(ref + wibble);
-//     canvas.drawArc(mArcRect, anim_angle, anim_sweep, false, mInnerBandDetailBrightPaint);
+    // mArcRect = setArcRect(ref + wibble);
+    // canvas_draw_arc(ctx, mArcRect, 0, 360);
 
-//     // the line
-//     setArcRect(ref);
-//     anim_sweep = 360;
-//     if (quadrant == 0 || quadrant == 3) {
-//         anim_sweep = ((now % anim_period) / (float)anim_period) * 360;
-//     }
-//     anim_angle = 270;
-//     if (quadrant == 3) anim_angle = 270 + anim_sweep;
-//     if (quadrant == 3) anim_sweep = 359 - anim_sweep;
-//     canvas.drawArc(mArcRect, anim_angle, anim_sweep, false, mInnerBandLinePaint);
+    // inner ring animation
+    int anim_period = 1500;
+    int quadrant = (int)(now % (anim_period*4) / anim_period);
+    float anim_sweep = 0;
+    if (quadrant == 1 || quadrant == 2) {
+        anim_sweep = ((now % anim_period) / (float)anim_period) * 360;
+    }
+    float anim_angle = 270;
+    if (quadrant == 2) anim_angle = 270 + anim_sweep;
+    if (quadrant == 2) anim_sweep = 359 - anim_sweep;
+    mArcRect = setArcRect(ref);
+    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+    mArcRect = setArcRect(ref - wibble);
+    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+    mArcRect = setArcRect(ref + wibble);
+    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
 
-//     // line highlight
-//     int line_period = 1000;
-//     int line_quadrant = (int)(now % (line_period*6) / line_period);
-//     angle = -90 + line_quadrant * 360/6f;
-//     sweep = 60;
-//     if (quadrant == 0 && anim_sweep < 60) {
-//         sweep = anim_sweep;
-//     }
-//     if (quadrant == 3 && anim_sweep < 60) {
-//         angle += 60;
-//         sweep = -anim_sweep;
-//     }
-//     canvas.drawArc(mArcRect, angle, sweep, false, mInnerBandLineBrightPaint);
+    // the line
+    mArcRect = setArcRect(ref);
+    anim_sweep = 360;
+    if (quadrant == 0 || quadrant == 3) {
+        anim_sweep = ((now % anim_period) / (float)anim_period) * 360;
+    }
+    anim_angle = 270;
+    if (quadrant == 3) anim_angle = 270 + anim_sweep;
+    if (quadrant == 3) anim_sweep = 359 - anim_sweep;
+    canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
 
-//     // draw the gaps back in
-//     gap = 1;
-//     canvas.drawArc(mArcRect, 90-gap, gap+gap, false, mInnerBandBlackPaint);
-//     canvas.drawArc(mArcRect, 90-gap+120, gap+gap, false, mInnerBandBlackPaint);
-//     canvas.drawArc(mArcRect, 90-gap+240, gap+gap, false, mInnerBandBlackPaint);
-//     canvas.drawArc(mArcRect, 90-gap+60, gap+gap, false, mInnerBandBlackPaint);
-//     canvas.drawArc(mArcRect, 90-gap+180, gap+gap, false, mInnerBandBlackPaint);
-//     canvas.drawArc(mArcRect, 90-gap+300, gap+gap, false, mInnerBandBlackPaint);
+    // line highlight
+    int line_period = 1000;
+    int line_quadrant = (int)(now % (line_period*6) / line_period);
+    angle = -90 + line_quadrant * 360/6.0f;
+    sweep = 60;
+    if (quadrant == 0 && anim_sweep < 60) {
+        sweep = anim_sweep;
+    }
+    if (quadrant == 3 && anim_sweep < 60) {
+        angle += 60;
+        sweep = -anim_sweep;
+    }
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
 
-//     // counter-rotating lines
-//     setArcRect(px(95));
-//     canvas.drawArc(mArcRect, 0, 360, false, mCounterRotatingLinePaint);
-//     int period = 60000;
-//     angle = (period - (now % period)) / (float)period * 360;
-//     sweep = 50;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mCounterRotatingLineBrightPaint);
-//     canvas.drawArc(mArcRect, angle + 90, sweep, false, mCounterRotatingLineBrightPaint);
-//     canvas.drawArc(mArcRect, angle + 180, sweep, false, mCounterRotatingLineBrightPaint);
-//     canvas.drawArc(mArcRect, angle + 270, sweep, false, mCounterRotatingLineBrightPaint);
+    // draw the gaps back in
+    graphics_context_set_stroke_color(ctx, bgColor);
+    gap = 1;
+    canvas_draw_arc(ctx, mArcRect, 90-gap, gap+gap);
+    canvas_draw_arc(ctx, mArcRect, 90-gap+120, gap+gap);
+    canvas_draw_arc(ctx, mArcRect, 90-gap+240, gap+gap);
+    canvas_draw_arc(ctx, mArcRect, 90-gap+60, gap+gap);
+    canvas_draw_arc(ctx, mArcRect, 90-gap+180, gap+gap);
+    canvas_draw_arc(ctx, mArcRect, 90-gap+300, gap+gap);
 
-//     // blobs
-//     setArcRect(px(108));
-//     ref = 200;
-//     angle = ref;
-//     sweep = 4;
-//     gap = 2;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobPaint);
-//     angle += sweep + gap;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobPaint);
-//     angle += sweep + gap;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobPaint);
-//     angle += sweep + gap;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobPaint);
-//     angle += sweep + gap;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobPaint);
-//     angle += sweep + gap;
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobPaint);
+    // counter-rotating lines
+    graphics_context_set_stroke_color(ctx, fgColor);
+    mArcRect = setArcRect(px(95));
+    canvas_draw_arc(ctx, mArcRect, 0, 360);
+    int period = 60000;
+    angle = (period - (now % period)) / (float)period * 360;
+    sweep = 50;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    canvas_draw_arc(ctx, mArcRect, angle + 90, sweep);
+    canvas_draw_arc(ctx, mArcRect, angle + 180, sweep);
+    canvas_draw_arc(ctx, mArcRect, angle + 270, sweep);
 
-//     // highlighted blob
-//     period = 500;
-//     quadrant = (int)(now % (period*6) / period);
-//     angle = ref + (5 - quadrant) * (sweep + gap);
-//     canvas.drawArc(mArcRect, angle, sweep, false, mBlobBrightPaint);
+    // blobs
+    graphics_context_set_stroke_color(ctx, fgColor);
+    graphics_context_set_stroke_width(ctx, 4);
+    setArcRect(px(108));
+    ref = 200;
+    angle = ref;
+    sweep = 4;
+    gap = 2;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    angle += sweep + gap;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    angle += sweep + gap;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    angle += sweep + gap;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    angle += sweep + gap;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    angle += sweep + gap;
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
 
-//     // expanding circle
-//     period = 1000;
-//     // expand, slowing but do not contract
-//     angle = now % period / (float)period / 1.8f;
-//     if (systemAmbientTime != 0) {
-//         angle = (1/1.8f) - angle;
-//     }
-//     angle = (float)(Math.sin(angle * Math.PI));
-//     setArcRect(px(200) - (int)(angle * px(82)));
-//     // interpolate from black (with a fadeout at the end)
-//     int r = (currentPalette.explodingCircle >> 16) & 0xff;
-//     int g = (currentPalette.explodingCircle >> 8) & 0xff;
-//     int b = 0;
-//     angle = now % period / (float)period / 1.2f;
-//     if (systemAmbientTime != 0) {
-//         angle = (1/1.2f) - angle;
-//     }
-//     angle = (float)(Math.sin(angle * Math.PI));
-//     r = (int)(r * angle);
-//     g = (int)(g * angle);
-//     mExplodingCirclePaint.setColor(Color.rgb(r, g, b));
-//     canvas.drawArc(mArcRect, 0, 360, false, mExplodingCirclePaint);
+    // highlighted blob
+    graphics_context_set_stroke_color(ctx, bgColor);
+    period = 500;
+    quadrant = (int)(now % (period*6) / period);
+    angle = ref + (5 - quadrant) * (sweep + gap);
+    canvas_draw_arc(ctx, mArcRect, angle, sweep);
 
-//     if (showOnlyAnims) {
-//         // fast counter-rotating dot
-//         setArcRect(px(50));
-//         period = 2000;
-//         angle = (period - (now % period)) / (float)period * 360;
-//         angle = (angle + 315) % 360; // -45 degree offset
-//         sweep = 10;
-//         canvas.drawArc(mArcRect, angle, sweep, false, mCounterRotatingLineBrightPaint);
-//     }
-// }
+    // expanding circle
+    graphics_context_set_stroke_color(ctx, fgColor);
+    graphics_context_set_stroke_width(ctx, 1);
+    period = 1000;
+    // expand, slowing but do not contract
+    angle = now % period / (float)period / 1.8f;
+    // if (systemAmbientTime != 0) {
+    //     angle = (1/1.8f) - angle;
+    // }
+    angle = (float)(math_sin(angle * PI));
+    setArcRect(px(200) - (int)(angle * px(82)));
+    // // interpolate from black (with a fadeout at the end)
+    // int r = (currentPalette.explodingCircle >> 16) & 0xff;
+    // int g = (currentPalette.explodingCircle >> 8) & 0xff;
+    // int b = 0;
+    // angle = now % period / (float)period / 1.2f;
+    // if (systemAmbientTime != 0) {
+    //     angle = (1/1.2f) - angle;
+    // }
+    // angle = (float)(Math.sin(angle * Math.PI));
+    // r = (int)(r * angle);
+    // g = (int)(g * angle);
+    // mExplodingCirclePaint.setColor(Color.rgb(r, g, b));
+    // canvas_draw_arc(mArcRect, 0, 360, false, mExplodingCirclePaint);
+
+    // if (showOnlyAnims) {
+        // fast counter-rotating dot
+        graphics_context_set_stroke_color(ctx, fgColor);
+        graphics_context_set_stroke_width(ctx, 1);
+        setArcRect(px(50));
+        period = 2000;
+        angle = (period - (now % period)) / (float)period * 360;
+        angle = ((int)angle + 315) % 360; // -45 degree offset
+        sweep = 10;
+        canvas_draw_arc(ctx, mArcRect, angle, sweep);
+    // }
+}
 
 static void drawForeground(GContext *ctx) {
     graphics_draw_bitmap_in_rect(ctx, logo_bitmap, mLogoBounds);
@@ -418,6 +432,7 @@ static void drawComplications(GContext *ctx) {
 
 void face_layer_update_proc(Layer *layer, GContext *ctx) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "draw");
+
     // background (circle)
     drawCircleBackground(ctx);
 
@@ -426,11 +441,13 @@ void face_layer_update_proc(Layer *layer, GContext *ctx) {
     if (!mAmbient) {
         // outer details (including ticks)
         drawComplexBackground(ctx);
-        // inner details (animating)
-        // drawAnimations(ctx);
+        if (animating) {
+            // inner details (animating)
+            drawAnimations(ctx);
+        }
     }
 
-    if (!showOnlyAnims) {
+    if (!animating && !showOnlyAnims) {
         // date, time, notifications
         drawForeground(ctx);
         drawComplications(ctx);
@@ -442,7 +459,7 @@ void face_layer_update_proc(Layer *layer, GContext *ctx) {
     // }
 }
 
-void face_layer_init() {
+void face_layer_init(Layer *face_layer) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
     showAllTicks = PBL_IF_ROUND_ELSE(false, true);

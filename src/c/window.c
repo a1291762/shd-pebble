@@ -9,6 +9,7 @@
 #include "face.h"
 #include "palette.h"
 #include "ext.h"
+#include "animation.h"
 
 static Window *s_window;
 static Layer *s_face_layer;
@@ -29,13 +30,20 @@ static void health_changed() {
     layer_mark_dirty(s_face_layer);
 }
 
+static void anim_update() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "redraw (anim)");
+    layer_mark_dirty(s_face_layer);
+}
+
 static void settings_changed() {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "settings changed");
     palette_init();
     window_set_background_color(s_window, windowColor);
 
     time_init(time_changed);
     battery_init(battery_changed);
     health_init(health_changed);
+    animation_start(anim_update);
 }
 
 void main_window_load(Window *window) {
@@ -49,7 +57,7 @@ void main_window_load(Window *window) {
     s_face_layer = layer_create(canvas_bounds);
     layer_set_update_proc(s_face_layer, face_layer_update_proc);
     layer_add_child(window_layer, s_face_layer);
-    face_layer_init();
+    face_layer_init(s_face_layer);
 
     PBL_IF_RECT_ELSE({
         // on rect watches, this layer matches the screen
@@ -71,4 +79,5 @@ void main_window_unload(Window *window) {
     time_deinit();
     battery_deinit();
     health_deinit();
+    animation_stop();
 }
