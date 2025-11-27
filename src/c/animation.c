@@ -9,16 +9,7 @@ static Animation *s_anim;
 static anim_callback s_anim_callback;
 static int anim_secs = 10;
 
-static void anim_setup(Animation *animation) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "setup");
-    animating = true;
-    palette_init();
-    //s_anim_callback();
-}
-
-static void anim_update(Animation *animation, const AnimationProgress progress) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "update");
-
+static void tick() {
     time_t this_seconds;
     uint16_t this_millis;
     time_ms(&this_seconds, &this_millis);
@@ -26,6 +17,18 @@ static void anim_update(Animation *animation, const AnimationProgress progress) 
     now = (long long)this_seconds * 1000 + this_millis;
 
     s_anim_callback();
+}
+
+static void anim_setup(Animation *animation) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "setup");
+    animating = true;
+    palette_init();
+    tick();
+}
+
+static void anim_update(Animation *animation, const AnimationProgress progress) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "update");
+    tick();
 }
 
 static void anim_teardown(Animation *animation) {
