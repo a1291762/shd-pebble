@@ -20,7 +20,7 @@ GColor counterDotColor;
 GColor expandingColor;
 
 void palette_init() {
-    bool invert = settings.InvertColor && !animating;
+    bool invert = settings.InvertColor && PBL_IF_COLOR_ELSE(!animating, true);
     if (invert) {
         fgColor = GColorBlack;
         bgColor = GColorWhite;
