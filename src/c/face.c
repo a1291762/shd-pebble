@@ -35,7 +35,7 @@ static void drawSimpleBackground(GContext *ctx) {
     if (!pulsing && !animating) {
         // remove the contents of the outer ring segments
         graphics_context_set_stroke_color(ctx, bgColor);
-        graphics_context_set_stroke_width(ctx, px(8));
+        graphics_context_set_stroke_width(ctx, px(7));
         sweep = 120 - gap - gap - 2;
         angle = 90 + gap + 1;
         canvas_draw_arc(ctx, mArcRect, angle, sweep);
@@ -53,7 +53,7 @@ static void drawComplexBackground(GContext *ctx) {
 
     // ticks
     graphics_context_set_stroke_color(ctx, fgColor);
-    graphics_context_set_stroke_width(ctx, 1); //px(2)
+    graphics_context_set_stroke_width(ctx, 1);
     for (int tickIndex = 0; tickIndex < tick_count; tickIndex++) {
         if (mBattery == -1 || animating || showAllTicks || (tickIndex > skipped_ticks && tickIndex < (tick_count - skipped_ticks))) {
             struct Tick *tick = &mTicks[tickIndex];
@@ -371,7 +371,7 @@ static void drawComplications(GContext *ctx) {
     if (mBattery != -1) {
         // battery ring
         graphics_context_set_stroke_color(ctx, batteryRingColor);
-        graphics_context_set_stroke_width(ctx, 1);
+        graphics_context_set_stroke_width(ctx, 2);
         // if the battery percentage is being written in the ring, leave room for it
         gap = showAllTicks ? 0 : 8;
         GRect mArcRect = setArcRect(px(21));
