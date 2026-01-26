@@ -17,6 +17,12 @@ static health_changed_cb health_changed;
 
 #ifdef PBL_HEALTH
 
+static struct {
+    int steps;
+    int hours;
+    int minutes;
+} health_data;
+
 #define ENUM_HELPER(x) case x: return #x;
 
 static char *health_activity_enum(HealthActivity activity) {
@@ -66,8 +72,12 @@ static float value_to_percent(int value, int max) {
     }
 }
 
-static void update_steps() {
+static int calculate_steps() {
     int steps = health_service_sum_today(HealthMetricStepCount);
+    return steps;
+}
+
+static void update_steps(int steps) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "steps %d", steps);
     mSteps = value_to_percent(steps, settings.StepTarget);
     stepsChar[0] = '\0';
@@ -89,11 +99,15 @@ static void update_steps() {
     }
 }
 
-static bool update_hours() {
+static int calculate_hours(bool *finished) {
     time_t this_seconds = time(NULL);
     time_t start_of_day = time_start_of_today();
-    bool finished = hours_update(start_of_day, this_seconds);
+    *finished = hours_update(start_of_day, this_seconds);
     int hours = hours_data.hours_active;
+    return hours;
+}
+
+static void update_hours(int hours) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "hours %d", hours);
     mHours = value_to_percent(hours, settings.HourTarget);
     snprintf(hoursChar, sizeof(hoursChar), "%d", hours);
@@ -102,15 +116,18 @@ static bool update_hours() {
     if (health_changed) {
         health_changed();
     }
-    return finished;
 }
 
-static void update_minutes() {
+static int calculate_minutes() {
     time_t this_seconds = time(NULL);
     time_t start_of_day = time_start_of_today();
     int minutes = 0;
     HealthActivityMask activity_mask = HealthActivityWalk | HealthActivityRun | HealthActivityOpenWorkout;
     health_service_activities_iterate(activity_mask, start_of_day, this_seconds, HealthIterationDirectionFuture, count_minutes, &minutes);
+    return minutes;
+}
+
+static void update_minutes(int minutes) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "minutes %d", minutes);
     mMinutes = value_to_percent(minutes, settings.MinuteTarget);
     snprintf(minutesChar, sizeof(minutesChar), "%d", minutes);
@@ -123,19 +140,26 @@ static void update_minutes() {
 
 static int state;
 static void timer_event() {
+    bool finished;
     switch (state) {
     case 0:
-        update_steps();
+        health_data.steps = calculate_steps();
+        update_steps(health_data.steps);
         timer_init(timer_event, 100);
         state++;
         break;
     case 1:
-        update_minutes();
+        health_data.minutes = calculate_minutes();
+        update_minutes(health_data.minutes);
         timer_init(timer_event, 100);
         state++;
         break;
     case 2:
-        if (!update_hours()) {
+        health_data.hours = calculate_hours(&finished);
+        update_hours(health_data.hours);
+        if (finished) {
+            persist_write_data(HEALTH_KEY, &health_data, sizeof(health_data));
+        } else {
             timer_init(timer_event, 100);
         }
         break;
@@ -146,10 +170,6 @@ static void health_handler(HealthEventType event, void *context) {
     char *act = health_event_type_enum(event);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "health handler event %s", act);
     if (event == HealthEventSignificantUpdate || event == HealthEventMovementUpdate) {
-        // update_steps();
-        // update_hours();
-        // update_minutes();
-        // geometry_health();
         state = 0;
         timer_init(timer_event, 100);
     }
@@ -174,8 +194,17 @@ void health_init(health_changed_cb callback) {
         health_service_events_subscribe(health_handler, NULL);
         // probe for initial health status
         // health_handler(HealthEventSignificantUpdate, NULL);
+
+        int read = persist_read_data(HEALTH_KEY, &health_data, sizeof(health_data));
+        if (read == sizeof(health_data)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "persistent cache present");
+            update_steps(health_data.steps);
+            update_minutes(health_data.minutes);
+            update_hours(health_data.hours);
+        }
     } else {
         hours_delete();
+        persist_delete(HEALTH_KEY);
     }
 #endif
 }
