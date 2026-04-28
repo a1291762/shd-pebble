@@ -34,7 +34,8 @@
       "chalk",
       "diorite",
       "emery",
-      "flint"
+      "flint",
+      "gabbro"
     ],
     "watchapp": {
       "watchface": true
@@ -45,7 +46,7 @@
           "menuIcon": true,
           "type": "png",
           "name": "IMAGE_MENU_ICON",
-          "file": "images/hollow_25.png"
+          "file": "images/menu_icon.png"
         },
         {
           "type": "font",
@@ -70,6 +71,15 @@
           ]
         },
         {
+          "type": "font",
+          "name": "FONT_ALARM_CLOCK_60",
+          "file": "fonts/alarm clock.ttf",
+          "characterRegex": "[ :0-9]",
+          "targetPlatforms": [
+            "gabbro"
+          ]
+        },
+        {
           "type": "bitmap",
           "name": "IMAGE_HOLLOW",
           "file": "images/hollow_43.png",
@@ -89,6 +99,15 @@
           "targetPlatforms": [
             "chalk",
             "emery"
+          ]
+        },
+        {
+          "type": "bitmap",
+          "name": "IMAGE_HOLLOW",
+          "file": "images/hollow_60.png",
+          "memoryFormat": "1BitPalette",
+          "targetPlatforms": [
+            "gabbro"
           ]
         }
       ]

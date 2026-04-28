@@ -9,7 +9,12 @@ void resources_init() {
     // package.json loads a different sized bitmap on different systems
     logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HOLLOW);
 
-#if PBL_DISPLAY_HEIGHT >= 180
+#if PBL_DISPLAY_HEIGHT >= 260
+    // fonts for gabbro (huge!)
+    int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_60;
+    date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+    battery_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+#elif PBL_DISPLAY_HEIGHT >= 180
     // fonts for bigger screens
     int alarm_clock_font = RESOURCE_ID_FONT_ALARM_CLOCK_50;
     date_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
