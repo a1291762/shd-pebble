@@ -79,7 +79,9 @@ void main_window_load(Window *window) {
         s_ext_layer = layer_create(window_bounds);
         layer_set_update_proc(s_ext_layer, ext_layer_update_proc);
         layer_add_child(window_layer, s_ext_layer);
-    }, {});
+    }, {
+        s_ext_layer = NULL;
+    });
 
     settings_init(settings_changed);
 }
