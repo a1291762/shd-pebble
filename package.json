@@ -26,7 +26,8 @@
       "InvertColor",
       "PartialInvert",
       "AnimateOnLaunch",
-      "AnimateOnShake"
+      "AnimateOnShake",
+      "UseColor"
     ],
     "targetPlatforms": [
       "aplite",

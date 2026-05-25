@@ -24,11 +24,11 @@ void palette_init() {
     if (invert) {
         fgColor = GColorBlack;
         bgColor = GColorWhite;
-        timeBgColor = GColorLightGray;
+        timeBgColor = bgColor; //GColorLightGray;
     } else {
         fgColor = GColorWhite;
         bgColor = GColorBlack;
-        timeBgColor = GColorDarkGray;
+        timeBgColor = bgColor; //GColorDarkGray;
     }
     if (settings.PartialInvert) {
         windowColor = fgColor;
@@ -37,16 +37,16 @@ void palette_init() {
         windowColor = bgColor;
         extColor = fgColor;
     }
-    outerRingColor = PBL_IF_COLOR_ELSE(GColorOrange, fgColor);
-    batteryRingColor = PBL_IF_COLOR_ELSE(GColorGreen, fgColor);
-    innerBandColor = PBL_IF_COLOR_ELSE(GColorBulgarianRose, bgColor);
-    innerBandBrightColor = PBL_IF_COLOR_ELSE(GColorOrange, fgColor);
-    innerBandLineColor = PBL_IF_COLOR_ELSE(GColorYellow, fgColor);
-    innerBandLineBrightColor = PBL_IF_COLOR_ELSE(GColorWhite, fgColor);
-    blobColor = PBL_IF_COLOR_ELSE(GColorOrange, bgColor);
-    blobBrightColor = PBL_IF_COLOR_ELSE(GColorWhite, fgColor);
-    counterDotColor = PBL_IF_COLOR_ELSE(GColorYellow, fgColor);
-    expandingColor = PBL_IF_COLOR_ELSE(GColorOrange, fgColor);
+    outerRingColor = settings.UseColor ? GColorOrange : fgColor;
+    batteryRingColor = settings.UseColor ? GColorGreen : fgColor;
+    innerBandColor = settings.UseColor ? GColorBulgarianRose : bgColor;
+    innerBandBrightColor = settings.UseColor ? GColorOrange : fgColor;
+    innerBandLineColor = settings.UseColor ? GColorYellow : fgColor;
+    innerBandLineBrightColor = settings.UseColor ? GColorWhite : fgColor;
+    blobColor = settings.UseColor ? GColorOrange : bgColor;
+    blobBrightColor = settings.UseColor ? GColorWhite : fgColor;
+    counterDotColor = settings.UseColor ? GColorYellow : fgColor;
+    expandingColor = settings.UseColor ? GColorOrange : fgColor;
 
     // invert the logo bitmap if required
     GColor *pal = gbitmap_get_palette(logo_bitmap);

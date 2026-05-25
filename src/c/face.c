@@ -9,6 +9,7 @@
 #include "settings.h"
 #include "resources.h"
 #include "animation.h"
+#include "settings.h"
 
 static bool pulsing = false;
 static bool showAllTicks;
@@ -296,14 +297,14 @@ static void drawForeground(GContext *ctx) {
     canvas_draw_text(ctx, s_dow, date_font, mDateBounds[2], GTextAlignmentLeft);
     canvas_draw_text(ctx, s_year, date_font, mDateBounds[3], GTextAlignmentLeft);
 
-    PBL_IF_COLOR_ELSE({
+    if (settings.UseColor) {
         // time background
         graphics_context_set_text_color(ctx, timeBgColor);
         canvas_draw_text(ctx, "8", time_font, mTimeBounds[0], GTextAlignmentLeft);
         canvas_draw_text(ctx, "8", time_font, mTimeBounds[1], GTextAlignmentLeft);
         canvas_draw_text(ctx, "8", time_font, mTimeBounds[3], GTextAlignmentLeft);
         canvas_draw_text(ctx, "8", time_font, mTimeBounds[4], GTextAlignmentLeft);
-    }, {});
+    };
 
     // time foreground
     graphics_context_set_text_color(ctx, fgColor);

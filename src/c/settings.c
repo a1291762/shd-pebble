@@ -13,6 +13,7 @@ struct Settings settings = {
     .HourTarget = 6,
     .AnimateOnLaunch = false,
     .AnimateOnShake = false,
+    .UseColor = PBL_IF_COLOR_ELSE(true, false),
 };
 static settings_changed_cb settings_changed;
 
@@ -72,6 +73,11 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "animate on shake %d", settings.AnimateOnShake);
     }
 
+    if ((tuple = dict_find(iter, MESSAGE_KEY_UseColor))) {
+        settings.UseColor = PBL_IF_COLOR_ELSE(tuple->value->int32 == 1, false);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "use color %d", settings.UseColor);
+    }
+
     // save to config
     persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
 
@@ -87,10 +93,15 @@ void settings_init(settings_changed_cb callback) {
 
     settings_changed = callback;
 
-    if (persist_exists(SETTINGS_KEY) && persist_get_size(SETTINGS_KEY) == sizeof(settings)) {
+    if (persist_exists(SETTINGS_KEY) && (unsigned int)persist_get_size(SETTINGS_KEY) <= sizeof(settings)) {
         // load from config
         persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
     }
+
+    // Force UseColor to false if we don't have color support
+    PBL_IF_COLOR_ELSE({}, {
+        settings.UseColor = false;
+    });
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display seconds %d", settings.DisplaySeconds);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "display battery %d", settings.DisplayBattery);
@@ -102,6 +113,7 @@ void settings_init(settings_changed_cb callback) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "hour target %d", settings.HourTarget);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "animate on launch %d", settings.AnimateOnLaunch);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "animate on shake %d", settings.AnimateOnShake);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "use color %d", settings.UseColor);
 
     app_message_register_inbox_received(inbox_received_handler);
 
@@ -116,6 +128,7 @@ void settings_init(settings_changed_cb callback) {
         TupletCString(MESSAGE_KEY_HourTarget, "24"),
         TupletInteger(MESSAGE_KEY_AnimateOnLaunch, 1),
         TupletInteger(MESSAGE_KEY_AnimateOnShake, 1),
+        TupletInteger(MESSAGE_KEY_UseColor, 1),
     };
     uint32_t size = dict_calc_buffer_size_from_tuplets(pairs, ARRAY_LENGTH(pairs));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %lu", size);
