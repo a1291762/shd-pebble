@@ -3,40 +3,105 @@
     "type": "section",
     "items": [
       {
+        "type": "heading",
+        "defaultValue": "Display Options"
+      },
+      {
         "type": "toggle",
         "messageKey": "DisplaySeconds",
         "label": "Display Seconds",
-        "defaultValue": false
+        "defaultValue": false,
+        "description": "Indicate the current second by bolding the appropriate mark in the bezel. Causes the display to update every second."
       },
       {
         "type": "toggle",
         "messageKey": "DisplayBattery",
         "label": "Display Battery",
-        "defaultValue": true
+        "defaultValue": true,
+        "description": "Display the battery as a percentage, and by drawing a ring around the activity bars."
       },
       {
         "type": "toggle",
+        "capabilities": ["HEALTH"],
         "messageKey": "DisplayHealth",
         "label": "Display Health",
-        "defaultValue": true
+        "defaultValue": true,
+        "description": "Display health data. Active hours (top), Minutes of exercise (left), Steps taken (right)."
+      },
+      {
+        "type": "toggle",
+        "capabilities": ["COLOR"],
+        "messageKey": "UseColor",
+        "label": "Use Color",
+        "defaultValue": true,
+        "description": "Disable to remove all colors."
+      }
+    ]
+  },
+  {
+    "type": "section",
+    "items": [
+      {
+        "type": "heading",
+        "defaultValue": "Color options"
       },
       {
         "type": "toggle",
         "messageKey": "InvertColor",
-        "label": "Invert Display",
-        "defaultValue": true
+        "label": "Light Background",
+        "defaultValue": true,
+        "description": "A dark background is closer to the original this is based on, but can make reading in dim light more difficult.",
+        "group": "NotColor"
       },
       {
         "type": "toggle",
-        "messageKey": "UseColor",
-        "label": "Use Color",
-        "defaultValue": true
-      },
-      {
-        "type": "toggle",
+        "capabilities": ["RECT"],
         "messageKey": "PartialInvert",
-        "label": "Circular Display",
-        "defaultValue": false
+        "label": "Emulate Circular Display",
+        "defaultValue": false,
+        "description": "Fill in everything outside the circle. Most useful with a light background, to simulate having a circular display.",
+        "group": "NotColor"
+      },
+      {
+        "type": "color",
+        "messageKey": "background",
+        "defaultValue": "000000",
+        "label": "Background Color",
+        "sunlight": true,
+        "group": "Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "foreground",
+        "defaultValue": "ffffff",
+        "label": "Foreground Color",
+        "sunlight": true,
+        "group": "Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "green",
+        "defaultValue": "00ff00",
+        "label": "Battery Color",
+        "sunlight": true,
+        "group": "Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "orange",
+        "defaultValue": "ff5500",
+        "label": "Activity Color",
+        "sunlight": true,
+        "group": "Color"
+      }
+    ]
+  },
+  {
+    "type": "section",
+    "items": [
+      {
+        "type": "heading",
+        "defaultValue": "Animation"
       },
       {
         "type": "toggle",
@@ -49,24 +114,41 @@
         "messageKey": "AnimateOnShake",
         "label": "Display animation on shake",
         "defaultValue": false
+      }
+    ]
+  },
+  {
+    "type": "section",
+    "capabilities": ["HEALTH"],
+    "items": [
+      {
+        "type": "heading",
+        "defaultValue": "Health targets",
+        "group": "HealthTarget"
       },
       {
         "type": "input",
         "messageKey": "StepTarget",
         "label": "Step Target",
-        "defaultValue": "5000"
+        "defaultValue": "5000",
+        "description": "Scale the step activity bar so that it fills up once this many steps have been taken.",
+        "group": "HealthTarget"
       },
       {
         "type": "input",
         "messageKey": "MinuteTarget",
         "label": "Minute Target",
-        "defaultValue": "20"
+        "defaultValue": "20",
+        "description": "Scale the minutes of exercise activity bar so that it fills up once this many minutes of exercise have been performed.",
+        "group": "HealthTarget"
       },
       {
         "type": "input",
         "messageKey": "HourTarget",
         "label": "Hour Target",
-        "defaultValue": "6"
+        "defaultValue": "6",
+        "description": "Scale the active hours activity bar so that it fills up once this many hours have been active. A given hour is considered to be active if 100 steps have been taken.",
+        "group": "HealthTarget"
       }
     ]
   },
