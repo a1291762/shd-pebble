@@ -119,18 +119,20 @@ void drawAnimations(GContext *ctx) {
     float ref = px(60);
 
     PBL_IF_COLOR_ELSE({
-        // inner ring
-        graphics_context_set_stroke_color(ctx, innerBandColor);
-        graphics_context_set_stroke_width(ctx, px(20));
-        mArcRect = setArcRect(ref);
-        canvas_draw_arc(ctx, mArcRect, 0, 360);
+        if (settings.UseColor) {
+            // inner ring
+            graphics_context_set_stroke_color(ctx, innerBandColor);
+            graphics_context_set_stroke_width(ctx, px(20));
+            mArcRect = setArcRect(ref);
+            canvas_draw_arc(ctx, mArcRect, 0, 360);
 
-        // inner ring details
-        graphics_context_set_stroke_width(ctx, 1);
-        setArcRect(ref - wibble);
-        canvas_draw_arc(ctx, mArcRect, 0, 360);
-        setArcRect(ref + wibble);
-        canvas_draw_arc(ctx, mArcRect, 0, 360);
+            // inner ring details
+            graphics_context_set_stroke_width(ctx, 1);
+            setArcRect(ref - wibble);
+            canvas_draw_arc(ctx, mArcRect, 0, 360);
+            setArcRect(ref + wibble);
+            canvas_draw_arc(ctx, mArcRect, 0, 360);
+        }
     }, {});
 
     // inner ring animation
@@ -148,10 +150,12 @@ void drawAnimations(GContext *ctx) {
         anim_angle += 2;
         anim_sweep -= 2;
         PBL_IF_COLOR_ELSE({
-            graphics_context_set_stroke_color(ctx, innerBandBrightColor);
-            graphics_context_set_stroke_width(ctx, px(20));
-            mArcRect = setArcRect(ref);
-            canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+            if (settings.UseColor) {
+                graphics_context_set_stroke_color(ctx, innerBandBrightColor);
+                graphics_context_set_stroke_width(ctx, px(20));
+                mArcRect = setArcRect(ref);
+                canvas_draw_arc(ctx, mArcRect, anim_angle, anim_sweep);
+            }
         }, {});
         graphics_context_set_stroke_color(ctx, innerBandBrightColor);
         graphics_context_set_stroke_width(ctx, 1);
@@ -211,9 +215,11 @@ void drawAnimations(GContext *ctx) {
     // counter-rotating lines
     mArcRect = setArcRect(px(85));
     PBL_IF_COLOR_ELSE({
-        graphics_context_set_stroke_color(ctx, innerBandColor);
-        graphics_context_set_stroke_width(ctx, 2);
-        canvas_draw_arc(ctx, mArcRect, 0, 360);
+        if (settings.UseColor) {
+            graphics_context_set_stroke_color(ctx, innerBandColor);
+            graphics_context_set_stroke_width(ctx, 2);
+            canvas_draw_arc(ctx, mArcRect, 0, 360);
+        }
     }, {});
     int period = 60000;
     angle = (period - (now % period)) / (float)period * 360;
@@ -262,15 +268,17 @@ void drawAnimations(GContext *ctx) {
     mArcRect = setArcRect(px(200) - (int)(angle * px(85)));
     GColor color = expandingColor;
     PBL_IF_COLOR_ELSE({
-        // interpolate from black (with a fadeout at the end)
-        int r = 0b11;
-        int g = 0b01;
-        angle = now % period / (float)period / 1.2f;
-        angle = (float)(math_sin(angle * PI));
-        r = (int)(r * angle);
-        g = (int)(g * angle);
-        color.r = r;
-        color.g = g;
+        if (settings.UseColor) {
+            // interpolate from black (with a fadeout at the end)
+            int r = 0b11;
+            int g = 0b01;
+            angle = now % period / (float)period / 1.2f;
+            angle = (float)(math_sin(angle * PI));
+            r = (int)(r * angle);
+            g = (int)(g * angle);
+            color.r = r;
+            color.g = g;
+        }
     }, {});
     graphics_context_set_stroke_color(ctx, color);
     graphics_context_set_stroke_width(ctx, px(8));
@@ -297,14 +305,16 @@ static void drawForeground(GContext *ctx) {
     canvas_draw_text(ctx, s_dow, date_font, mDateBounds[2], GTextAlignmentLeft);
     canvas_draw_text(ctx, s_year, date_font, mDateBounds[3], GTextAlignmentLeft);
 
-    if (settings.UseColor) {
-        // time background
-        graphics_context_set_text_color(ctx, timeBgColor);
-        canvas_draw_text(ctx, "8", time_font, mTimeBounds[0], GTextAlignmentLeft);
-        canvas_draw_text(ctx, "8", time_font, mTimeBounds[1], GTextAlignmentLeft);
-        canvas_draw_text(ctx, "8", time_font, mTimeBounds[3], GTextAlignmentLeft);
-        canvas_draw_text(ctx, "8", time_font, mTimeBounds[4], GTextAlignmentLeft);
-    };
+    PBL_IF_COLOR_ELSE({
+        if (settings.UseColor) {
+            // time background
+            graphics_context_set_text_color(ctx, timeBgColor);
+            canvas_draw_text(ctx, "8", time_font, mTimeBounds[0], GTextAlignmentLeft);
+            canvas_draw_text(ctx, "8", time_font, mTimeBounds[1], GTextAlignmentLeft);
+            canvas_draw_text(ctx, "8", time_font, mTimeBounds[3], GTextAlignmentLeft);
+            canvas_draw_text(ctx, "8", time_font, mTimeBounds[4], GTextAlignmentLeft);
+        }
+    }, {});
 
     // time foreground
     graphics_context_set_text_color(ctx, fgColor);

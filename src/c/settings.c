@@ -14,6 +14,11 @@ struct Settings settings = {
     .AnimateOnLaunch = false,
     .AnimateOnShake = false,
     .UseColor = PBL_IF_COLOR_ELSE(true, false),
+    .BackgroundColor = GColorBlack,
+    .ForegroundColor = GColorWhite,
+    .TimeBackgroundColor = GColorDarkGray,
+    .BatteryColor = GColorGreen,
+    .ActivityColor = GColorOrange,
 };
 static settings_changed_cb settings_changed;
 
@@ -74,9 +79,45 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     }
 
     if ((tuple = dict_find(iter, MESSAGE_KEY_UseColor))) {
-        settings.UseColor = PBL_IF_COLOR_ELSE(tuple->value->int32 == 1, false);
+        settings.UseColor = tuple->value->int32 == 1;
         APP_LOG(APP_LOG_LEVEL_DEBUG, "use color %d", settings.UseColor);
     }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_BackgroundColor))) {
+        settings.BackgroundColor = GColorFromHEX(tuple->value->int32);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "background color %x", settings.BackgroundColor);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_ForegroundColor))) {
+        settings.ForegroundColor = GColorFromHEX(tuple->value->int32);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "foreground color %x", settings.ForegroundColor);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_TimeBackgroundColor))) {
+        settings.TimeBackgroundColor = GColorFromHEX(tuple->value->int32);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "time background color %x", settings.TimeBackgroundColor);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_BatteryColor))) {
+        settings.BatteryColor = GColorFromHEX(tuple->value->int32);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "battery color %x", settings.BatteryColor);
+    }
+
+    if ((tuple = dict_find(iter, MESSAGE_KEY_ActivityColor))) {
+        settings.ActivityColor = GColorFromHEX(tuple->value->int32);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "activity color %x", settings.ActivityColor);
+    }
+
+    PBL_IF_COLOR_ELSE({
+        if (settings.UseColor) {
+            // Force these values when color is enabled
+            settings.InvertColor = true;
+            settings.PartialInvert = false;
+        }
+    },{
+        // This shouldn't even be possible?!
+        settings.UseColor = false;
+    });
 
     // save to config
     persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
@@ -114,6 +155,11 @@ void settings_init(settings_changed_cb callback) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "animate on launch %d", settings.AnimateOnLaunch);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "animate on shake %d", settings.AnimateOnShake);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "use color %d", settings.UseColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "background color %x", settings.BackgroundColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "foreground color %x", settings.ForegroundColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "time background color %x", settings.TimeBackgroundColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "battery color %x", settings.BatteryColor);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "activity color %x", settings.ActivityColor);
 
     app_message_register_inbox_received(inbox_received_handler);
 
@@ -129,6 +175,11 @@ void settings_init(settings_changed_cb callback) {
         TupletInteger(MESSAGE_KEY_AnimateOnLaunch, 1),
         TupletInteger(MESSAGE_KEY_AnimateOnShake, 1),
         TupletInteger(MESSAGE_KEY_UseColor, 1),
+        TupletInteger(MESSAGE_KEY_BackgroundColor, 1),
+        TupletInteger(MESSAGE_KEY_ForegroundColor, 1),
+        TupletInteger(MESSAGE_KEY_TimeBackgroundColor, 1),
+        TupletInteger(MESSAGE_KEY_BatteryColor, 1),
+        TupletInteger(MESSAGE_KEY_ActivityColor, 1),
     };
     uint32_t size = dict_calc_buffer_size_from_tuplets(pairs, ARRAY_LENGTH(pairs));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox size %lu", size);

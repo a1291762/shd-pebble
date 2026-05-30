@@ -2,6 +2,7 @@
 #include "animation.h"
 #include "time.h"
 #include "palette.h"
+#include "window.h"
 
 bool animating = false;
 
@@ -23,6 +24,7 @@ static void anim_setup(Animation *animation) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "setup");
     animating = true;
     palette_init();
+    main_window_set_background();
     tick();
 }
 
@@ -36,6 +38,7 @@ static void anim_teardown(Animation *animation) {
     s_anim = NULL;
     animating = false;
     palette_init();
+    main_window_set_background();
     s_anim_callback();
 }
 

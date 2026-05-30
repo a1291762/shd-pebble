@@ -14,6 +14,11 @@ struct Settings {
     bool AnimateOnShake;
     // v2
     bool UseColor;
+    GColor BackgroundColor;
+    GColor ForegroundColor;
+    GColor TimeBackgroundColor;
+    GColor BatteryColor;
+    GColor ActivityColor;
 } __attribute__((__packed__));
 
 extern struct Settings settings;

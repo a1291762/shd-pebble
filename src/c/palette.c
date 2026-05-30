@@ -20,15 +20,57 @@ GColor counterDotColor;
 GColor expandingColor;
 
 void palette_init() {
-    bool invert = settings.InvertColor && PBL_IF_COLOR_ELSE(!animating, true);
-    if (invert) {
-        fgColor = GColorBlack;
-        bgColor = GColorWhite;
-        timeBgColor = bgColor; //GColorLightGray;
+    if (animating) {
+        if (settings.UseColor) {
+            // A fixed palette
+            fgColor = GColorWhite;
+            bgColor = GColorBlack;
+            outerRingColor = GColorOrange;
+            innerBandColor = GColorBulgarianRose;
+            innerBandBrightColor = GColorOrange;
+            innerBandLineColor = GColorYellow;
+            innerBandLineBrightColor = GColorWhite;
+            blobColor = GColorOrange;
+            blobBrightColor = GColorWhite;
+            counterDotColor = GColorYellow;
+            expandingColor = GColorOrange;
+        } else {
+            // Honour the InvertColor setting
+            if (settings.InvertColor) {
+                fgColor = GColorBlack;
+                bgColor = GColorWhite;
+            } else {
+                fgColor = GColorWhite;
+                bgColor = GColorBlack;
+            }
+            outerRingColor = fgColor;
+            innerBandColor = bgColor;
+            innerBandBrightColor = fgColor;
+            innerBandLineColor = fgColor;
+            innerBandLineBrightColor = fgColor;
+            blobColor = bgColor;
+            blobBrightColor = fgColor;
+            counterDotColor = fgColor;
+            expandingColor = fgColor;
+        }
     } else {
-        fgColor = GColorWhite;
-        bgColor = GColorBlack;
-        timeBgColor = bgColor; //GColorDarkGray;
+        if (settings.UseColor) {
+            fgColor = settings.ForegroundColor;
+            bgColor = settings.BackgroundColor;
+            timeBgColor = settings.TimeBackgroundColor;
+            outerRingColor = settings.ActivityColor;
+            batteryRingColor = settings.BatteryColor;
+        } else if (settings.InvertColor) {
+            fgColor = GColorBlack;
+            bgColor = GColorWhite;
+            outerRingColor = fgColor;
+            batteryRingColor = fgColor;
+        } else {
+            fgColor = GColorWhite;
+            bgColor = GColorBlack;
+            outerRingColor = fgColor;
+            batteryRingColor = fgColor;
+        }
     }
     if (settings.PartialInvert) {
         windowColor = fgColor;
@@ -37,16 +79,6 @@ void palette_init() {
         windowColor = bgColor;
         extColor = fgColor;
     }
-    outerRingColor = settings.UseColor ? GColorOrange : fgColor;
-    batteryRingColor = settings.UseColor ? GColorGreen : fgColor;
-    innerBandColor = settings.UseColor ? GColorBulgarianRose : bgColor;
-    innerBandBrightColor = settings.UseColor ? GColorOrange : fgColor;
-    innerBandLineColor = settings.UseColor ? GColorYellow : fgColor;
-    innerBandLineBrightColor = settings.UseColor ? GColorWhite : fgColor;
-    blobColor = settings.UseColor ? GColorOrange : bgColor;
-    blobBrightColor = settings.UseColor ? GColorWhite : fgColor;
-    counterDotColor = settings.UseColor ? GColorYellow : fgColor;
-    expandingColor = settings.UseColor ? GColorOrange : fgColor;
 
     // invert the logo bitmap if required
     GColor *pal = gbitmap_get_palette(logo_bitmap);

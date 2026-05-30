@@ -64,7 +64,7 @@
       },
       {
         "type": "color",
-        "messageKey": "background",
+        "messageKey": "BackgroundColor",
         "defaultValue": "000000",
         "label": "Background Color",
         "sunlight": true,
@@ -72,7 +72,7 @@
       },
       {
         "type": "color",
-        "messageKey": "foreground",
+        "messageKey": "ForegroundColor",
         "defaultValue": "ffffff",
         "label": "Foreground Color",
         "sunlight": true,
@@ -80,7 +80,15 @@
       },
       {
         "type": "color",
-        "messageKey": "green",
+        "messageKey": "TimeBackgroundColor",
+        "defaultValue": "555555",
+        "label": "Time Background Color",
+        "sunlight": true,
+        "group": "Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "BatteryColor",
         "defaultValue": "00ff00",
         "label": "Battery Color",
         "sunlight": true,
@@ -88,7 +96,7 @@
       },
       {
         "type": "color",
-        "messageKey": "orange",
+        "messageKey": "ActivityColor",
         "defaultValue": "ff5500",
         "label": "Activity Color",
         "sunlight": true,

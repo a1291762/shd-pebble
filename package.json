@@ -27,7 +27,12 @@
       "PartialInvert",
       "AnimateOnLaunch",
       "AnimateOnShake",
-      "UseColor"
+      "UseColor",
+      "BackgroundColor",
+      "ForegroundColor",
+      "TimeBackgroundColor",
+      "BatteryColor",
+      "ActivityColor"
     ],
     "targetPlatforms": [
       "aplite",

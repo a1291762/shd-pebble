@@ -46,7 +46,7 @@ static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
 static void settings_changed() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "settings changed");
     palette_init();
-    window_set_background_color(s_window, windowColor);
+    main_window_set_background();
 
     time_init(time_changed);
     battery_init(battery_changed);
@@ -99,3 +99,8 @@ void main_window_unload(Window *window) {
     health_deinit();
     accel_tap_service_unsubscribe();
 }
+
+void main_window_set_background() {
+    window_set_background_color(s_window, windowColor);
+}
+
