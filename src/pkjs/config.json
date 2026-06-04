@@ -39,6 +39,10 @@
     ]
   },
   {
+    "type": "submit",
+    "defaultValue": "Save Settings"
+  },
+  {
     "type": "section",
     "items": [
       {
@@ -105,6 +109,10 @@
     ]
   },
   {
+    "type": "submit",
+    "defaultValue": "Save Settings"
+  },
+  {
     "type": "section",
     "items": [
       {
@@ -124,6 +132,10 @@
         "defaultValue": false
       }
     ]
+  },
+  {
+    "type": "submit",
+    "defaultValue": "Save Settings"
   },
   {
     "type": "section",
