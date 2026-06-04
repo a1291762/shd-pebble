@@ -15,7 +15,7 @@ char minutesChar[9];
 
 static health_changed_cb health_changed;
 
-#ifdef PBL_HEALTH
+#if PBL_HEALTH
 
 static struct {
     int steps;
@@ -189,7 +189,7 @@ void health_init(health_changed_cb callback) {
     mHours = -1;
     hoursChar[0] = '\0';
 
-#ifdef PBL_HEALTH
+#if PBL_HEALTH
     if (settings.DisplayHealth) {
         health_service_events_subscribe(health_handler, NULL);
         // probe for initial health status
@@ -212,7 +212,7 @@ void health_init(health_changed_cb callback) {
 void health_deinit() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "deinit");
     health_changed = NULL;
-#ifdef PBL_HEALTH
+#if PBL_HEALTH
     health_service_events_unsubscribe();
 #endif
 }
